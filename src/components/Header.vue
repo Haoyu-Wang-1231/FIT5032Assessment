@@ -9,7 +9,7 @@
 
             <RouterLink to="/register">Register</RouterLink>
 
-            <RouterLink to="/login">Account</RouterLink>
+            <RouterLink to="/login">Login</RouterLink>
 
         </div>
     </div>
