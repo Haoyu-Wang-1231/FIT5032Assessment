@@ -10,19 +10,42 @@ const formData = ref({
     password: ''
 })
 
-// const errors = ref({
-//     username: null,
-//     password: null
-// })
+const errors = ref({
+    username: null,
+    password: null
+})
 
 
 
 
-const submitLogin = () => {    
+const submitLogin = () => {
     // console.log(users.value)
+    // validateUsername();
+    // validatePassword();
+    // validateConfirmPassword();
+    // console.log("activate")
+
+    // if (errors.value.username !== null || errors.value.password !== null || errors.value.confirmPassword !== null) {
+    //     return;
+    // }
+    const u = users.value.find(x => {return x.username === formData.value.username && x.password === formData.value.password })
+    
+    
+    // console.log(formData.value.username)
+    // console.log(formData.value.password)
+    
+    if (u) {
+        router.push({name: 'Home'})
+
+    }else{
+        
+        
+        router.push({name:'Login'})
+    }
 
 
-    router.push({name: 'Home'})
+
+    router.push({ name: 'Home' })
 
 
 }
@@ -40,7 +63,8 @@ function registering() {
             <form @submit.prevent="submitLogin">
                 <div class="row mb-3">
                     <label for="username" class="form-label">user name</label>
-                    <input type="text" class="form-control" id="username">
+                    <input type="text" class="form-control"
+                        v-model="formData.username" id="username">
                     </input>
                     <!-- <input type="text" class="form-control" id="username" @blur="() => validateName(true)"
                             @input="() => validateName(false)" v-model="formData.username">
@@ -48,13 +72,15 @@ function registering() {
                 </div>
                 <div class="row mb-3">
                     <label for="username" class="form-label">password</label>
-                    <input type="text" class="form-control" id="username">
+                    <input type="text" class="form-control"
+                        v-model="formData.password" id="username">
                     </input>
                 </div>
 
-                <div class="text-center">
-                    <button type="button" @click="registering" class="btn btn-secondary me-2">Register</button>
-                    <button type="submit"  class="btn btn-primary me-2">Login</button>
+                <div class="text-center mb-">
+                    <button type="button" @click="registering" class="btn btn-secondary me-3 mb-3">Register</button>
+                    <button type="submit" class="btn btn-primary me-3 mb-3">Login</button>
+
 
                 </div>
             </form>

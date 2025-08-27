@@ -1,5 +1,4 @@
 <script setup>
-import AccountLogin from './components/AccountLogin.vue';
 import Header from './components/Header.vue';
 import { RouterView, RouterLink } from 'vue-router';
 
