@@ -5,26 +5,24 @@
         </div>
 
         <div class="col-md-4 navigator">
-            <routerLink to="/">Home</routerLink>
-
-            <RouterLink to="/register">Register</RouterLink>
-
-            <RouterLink to="/login">Login</RouterLink>
-
+            <routerLink to="/home">Home</routerLink>
+            <routerLink to="/register">Register</routerLink>
+            <routerLink to="/login">Login</routerLink>
         </div>
     </div>
-
 </template>
 
-<script>
+<script setup>
+import { computed, onMounted, ref } from 'vue';
 import { RouterLink, routerViewLocationKey } from 'vue-router';
+
+
 </script>
 
 <style scoped>
 .gne-header {
     background-color: #03fc90;
-    padding-left: 2rem;
-    padding-right: 2rem;
+
 
     display: flex;
     justify-content: space-between;

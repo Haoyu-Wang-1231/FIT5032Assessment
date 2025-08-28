@@ -28,12 +28,12 @@ const submitRegister = () => {
     if (errors.value.username !== null || errors.value.password !== null || errors.value.confirmPassword !== null) {
         return;
     }
-    const u = users.value.find(x => {return x.username === formData.value.username && x.password === formData.value.password })
-    
-    
+    const u = users.value.find(x => { return x.username === formData.value.username && x.password === formData.value.password })
+
+
     console.log(formData.value.username)
     console.log(formData.value.password)
-    
+
     if (u) {
         errors.value.username = "user already exist!"
         users.value.push({
@@ -41,8 +41,8 @@ const submitRegister = () => {
             password: formData.value.password
         })
 
-    }else{
-        router.push({name:'Login'})
+    } else {
+        router.push({ name: 'Login' })
     }
 
 
@@ -103,44 +103,44 @@ const validateConfirmPassword = (blur) => {
 </script>
 
 <template>
-
-    <div class="mt-5 container">
-        <div class="col-sm-10 col-md-8 offset-2 col-lg-8">
-            <h1 class="text-center">Register Page</h1>
-            <form @submit.prevent="submitRegister">
-                <div class="row mb-3">
-                    <label for="username" class="form-label">Username</label>
-                    <input type="text" class="form-control" @blur="() => validateUsername(true)"
-                        @input="() => validateUsername(false)" v-model="formData.username" id="username">
-
-                    </input>
-                    <div v-if="errors.username" class="text-danger">{{ errors.username }}</div>
-                    <!-- <input type="text" class="form-control" id="username" @blur="() => validateName(true)"
-                            @input="() => validateName(false)" v-model="formData.username">
-                        <div v-if="errors.username" class="text-danger">{{ errors.username }}</div> -->
-                </div>
-                <div class="row mb-3">
-                    <label for="username" class="form-label">Password</label>
-                    <input type="text" class="form-control" @blur="() => validatePassword(true)"
-                        @input="() => validatePassword(false)" v-model="formData.password" id="username">
-                    </input>
-                    <div v-if="errors.password" class="text-danger">{{ errors.password }}</div>
-                </div>
-                <div class="row mb-3">
-                    <label for="username" class="form-label">Confirm Password</label>
-                    <input type="text" class="form-control" @blur="() => validateConfirmPassword(true)"
-                        @input="() => validateConfirmPassword(false)" v-model="formData.confirmPassword" id="username">
-                    </input>
-                    <div v-if="errors.confirmPassword" class="text-danger">{{ errors.confirmPassword }}</div>
-                    <!-- <div v-if="errors.confirmPassword" class="text-danger">{{ errors.confirmPassword }} </div> -->
-
-                    <div class="mt-2 pb-3 text-center">
-                        <button type="submit" class="btn btn-primary me-2">Sign Up</button>
+    <!-- xs,sm,lg,xxl -->
+    <div class="mt-5 container d-flex justify-content-center">
+        <div class="col-xxl-8 col-lg-8 col-md-8 col-sm-10 col-10 background">
+            <h1 class="mt-5 text-center">Register Page</h1>
+            <div class="d-flex justify-content-center">
+                <form class="col-xxl-6 col-lg-6 col-md-7 col-sm-8 col-10" @submit.prevent="submitRegister">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" @blur="() => validateUsername(true)"
+                            @input="() => validateUsername(false)" v-model="formData.username" id="username">
+                        </input>
+                        <div v-if="errors.username" class="text-danger">{{ errors.username }}</div>
                     </div>
-                </div>
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Password</label>
+                        <input type="text" class="form-control mx-auto" @blur="() => validatePassword(true)"
+                            @input="() => validatePassword(false)" v-model="formData.password" id="username">
+                        </input>
+                        <div v-if="errors.password" class="text-danger">{{ errors.password }}</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Confirm Password</label>
+                        <input type="text" class="form-control" @blur="() => validateConfirmPassword(true)"
+                            @input="() => validateConfirmPassword(false)" v-model="formData.confirmPassword"
+                            id="username">
+                        </input>
+                        <div v-if="errors.confirmPassword" class="text-danger">{{ errors.confirmPassword }}</div>
+                        <!-- <div v-if="errors.confirmPassword" class="text-danger">{{ errors.confirmPassword }} </div> -->
+
+                        <div class="mt-2 pb-3 text-center">
+                            <button type="submit" class="btn btn-primary me-2">Sign Up</button>
+                        </div>
+                    </div>
 
 
-            </form>
+                </form>
+            </div>
+
         </div>
     </div>
 </template>
@@ -148,7 +148,7 @@ const validateConfirmPassword = (blur) => {
 
 
 <style scoped>
-.container {
+.background {
     background-color: antiquewhite;
 }
 </style>

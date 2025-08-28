@@ -8,8 +8,7 @@ import RegisterView from '../views/RegisterView.vue'
 const routes = [
   {
     path: '/',
-    name: 'Home',
-    component: HomeView,
+    name: 'Login',
   },
   {
     path: '/login',
@@ -17,10 +16,15 @@ const routes = [
     component: LoginView,
   },
   {
+    path: '/home',
+    name: 'Home',
+    component: HomeView,
+  },
+  {
     path: '/register',
     name: 'Register',
     component: RegisterView,
-  },
+  }
 ]
 
 const router = createRouter({

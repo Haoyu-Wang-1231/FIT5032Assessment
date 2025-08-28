@@ -5,16 +5,19 @@ import { RouterView, RouterLink } from 'vue-router';
 </script>
 
 <template>
-  <header class="col-12">
-    <!-- <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" /> -->
-    <Header class="col-md-12" />
-  </header>
+  <div>
+    <header class="col-12">
+      <!-- <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" /> -->
+      <Header class="col-md-12" />
+    </header>
 
-  <main>
-    <RouterView></RouterView>
-    <!-- <AccountLogin /> -->
-    <!-- <TheWelcome /> -->
-  </main>
+    <main class="row">
+      <RouterView></RouterView>
+      <!-- <AccountLogin /> -->
+      <!-- <TheWelcome /> -->
+    </main>
+  </div>
+
 </template>
 
 <style scoped>

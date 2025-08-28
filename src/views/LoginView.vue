@@ -15,39 +15,31 @@ const errors = ref({
     password: null
 })
 
-
-
-
 const submitLogin = () => {
-    // console.log(users.value)
-    // validateUsername();
-    // validatePassword();
-    // validateConfirmPassword();
-    // console.log("activate")
-
-    // if (errors.value.username !== null || errors.value.password !== null || errors.value.confirmPassword !== null) {
-    //     return;
-    // }
-    const u = users.value.find(x => {return x.username === formData.value.username && x.password === formData.value.password })
-    
-    
-    // console.log(formData.value.username)
-    // console.log(formData.value.password)
-    
-    if (u) {
-        router.push({name: 'Home'})
-
+    const u = users.value.find(x => {return x.username === formData.value.username});
+    if(!u){
+        formData.value.username = '';
+        formData.value.password = '';
+        errors.value.username = "user not exist.";
+        
+    }else if (u.password !== formData.value.password){
+        if(formData.value.password === ''){
+            errors.value.password = "no password input"
+        }else{
+            formData.value.password = '';
+            errors.value.password = "password not correct.";
+        }
     }else{
-        
-        
-        router.push({name:'Login'})
+        router.push({ name: 'Home' })
     }
+}
 
+const validateUsername = () => {
+    errors.value.username = null
+}
 
-
-    router.push({ name: 'Home' })
-
-
+const validatePassword = () => {
+    errors.value.password = null
 }
 
 function registering() {
@@ -64,8 +56,10 @@ function registering() {
                 <div class="row mb-3">
                     <label for="username" class="form-label">user name</label>
                     <input type="text" class="form-control"
+                        @focus="validateUsername"
                         v-model="formData.username" id="username">
                     </input>
+                    <div v-if="errors.username" class="text-danger">{{ errors.username }}</div>
                     <!-- <input type="text" class="form-control" id="username" @blur="() => validateName(true)"
                             @input="() => validateName(false)" v-model="formData.username">
                         <div v-if="errors.username" class="text-danger">{{ errors.username }}</div> -->
@@ -73,8 +67,12 @@ function registering() {
                 <div class="row mb-3">
                     <label for="username" class="form-label">password</label>
                     <input type="text" class="form-control"
+                        @focus="validatePassword"
+
                         v-model="formData.password" id="username">
                     </input>
+                    <div v-if="errors.password" class="text-danger">{{ errors.password }}</div>
+
                 </div>
 
                 <div class="text-center mb-">
