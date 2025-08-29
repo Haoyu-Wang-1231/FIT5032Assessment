@@ -1,9 +1,9 @@
 <template>
-    <div>This is Home page</div>
+    <div>Welcome to General Nutrition Educator</div>
 </template>
 
 
-<script>
+<script setup>
 import { RouterLink } from 'vue-router';
 
 </script>

@@ -1,11 +1,13 @@
 <template>
-    <div class="col-md-12 gne-header">
-        <div>
+    <!-- sm,md,lg,xxl -->
+
+    <div class="container-fluid d-flex justify-content-between gne-header flex-column flex-sm-row">
+        <div class="col-xxl-3 col-lg-3 col-md-5 col-sm-5 col-12">
             General Nutrition Educator
         </div>
 
-        <div class="col-md-4 navigator">
-            <routerLink to="/home">Home</routerLink>
+        <div class="col-xxl-3 col-lg-3 col-md-3 col-sm-4 col-12 d-flex justify-content-around flex-column flex-sm-row">
+            <!-- <routerLink to="/home">Home</routerLink> -->
             <routerLink to="/register">Register</routerLink>
             <routerLink to="/login">Login</routerLink>
         </div>
@@ -22,17 +24,6 @@ import { RouterLink, routerViewLocationKey } from 'vue-router';
 <style scoped>
 .gne-header {
     background-color: #03fc90;
-
-
-    display: flex;
-    justify-content: space-between;
 }
 
-.navigator {
-    padding-left: 2rem;
-    padding-right: 2rem;
-
-    display: flex;
-    justify-content: space-between;
-}
 </style>

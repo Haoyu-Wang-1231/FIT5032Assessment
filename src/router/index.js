@@ -8,7 +8,7 @@ import RegisterView from '../views/RegisterView.vue'
 const routes = [
   {
     path: '/',
-    name: 'Login',
+    redirect: '/login',
   },
   {
     path: '/login',

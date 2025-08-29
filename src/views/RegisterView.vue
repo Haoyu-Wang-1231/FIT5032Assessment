@@ -1,12 +1,10 @@
 <script setup>
 
-import { ref } from 'vue'
-import userJson from '@/data/user.json'
+import { onMounted, ref } from 'vue'
 import router from '@/router';
 
 
-const users = ref(userJson)
-
+const users = JSON.parse(localStorage.getItem('users'))
 const formData = ref({
     username: '',
     password: '',
@@ -28,29 +26,31 @@ const submitRegister = () => {
     if (errors.value.username !== null || errors.value.password !== null || errors.value.confirmPassword !== null) {
         return;
     }
-    const u = users.value.find(x => { return x.username === formData.value.username && x.password === formData.value.password })
+    const u = users.find(x => { return x.username === formData.value.username && x.password === formData.value.password })
 
 
     console.log(formData.value.username)
     console.log(formData.value.password)
 
-    if (u) {
+    if (users.find(x => { return x.username === formData.value.username })) {
         errors.value.username = "user already exist!"
-        users.value.push({
+
+    } else {
+        users.push({
             username: formData.value.username,
             password: formData.value.password
         })
-
-    } else {
+        localStorage.setItem('users', JSON.stringify(users));
         router.push({ name: 'Login' })
     }
-
 
 }
 
 
 const validateUsername = (blur) => {
     const username = formData.value.username;
+    const u = users.find(x => { return x.username === formData.value.username });
+
     if (username.length < 3) {
         if (blur) {
             errors.value.username = "Username have at least 3 characters"
@@ -72,7 +72,6 @@ const validatePassword = (blur) => {
         if (blur) {
             errors.value.password = `password must have at least ${minLength} characters long.`;
         }
-        errors.value.password = `password must have at least ${minLength} characters long.`;
 
     } else if (!hasUppercase) {
         if (blur) errors.value.password = "password must have at least one uppercase letter.";
@@ -103,10 +102,10 @@ const validateConfirmPassword = (blur) => {
 </script>
 
 <template>
-    <!-- xs,sm,lg,xxl -->
-    <div class="mt-5 container d-flex justify-content-center">
+    <!-- sm,md,lg,xxl -->
+    <div class="container d-flex justify-content-center" style="padding-top: 10%;">
         <div class="col-xxl-8 col-lg-8 col-md-8 col-sm-10 col-10 background">
-            <h1 class="mt-5 text-center">Register Page</h1>
+            <h1 class="mt-5 text-center">Register New User</h1>
             <div class="d-flex justify-content-center">
                 <form class="col-xxl-6 col-lg-6 col-md-7 col-sm-8 col-10" @submit.prevent="submitRegister">
                     <div class="mb-3">
@@ -118,7 +117,8 @@ const validateConfirmPassword = (blur) => {
                     </div>
                     <div class="mb-3">
                         <label for="username" class="form-label">Password</label>
-                        <input type="text" class="form-control mx-auto" @blur="() => validatePassword(true)"
+                        <input type="text" class="form-control mx-auto" 
+                            @blur="() => validatePassword(true)"
                             @input="() => validatePassword(false)" v-model="formData.password" id="username">
                         </input>
                         <div v-if="errors.password" class="text-danger">{{ errors.password }}</div>
@@ -132,11 +132,10 @@ const validateConfirmPassword = (blur) => {
                         <div v-if="errors.confirmPassword" class="text-danger">{{ errors.confirmPassword }}</div>
                         <!-- <div v-if="errors.confirmPassword" class="text-danger">{{ errors.confirmPassword }} </div> -->
 
-                        <div class="mt-2 pb-3 text-center">
-                            <button type="submit" class="btn btn-primary me-2">Sign Up</button>
-                        </div>
                     </div>
-
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary me-2 mb-3">Sign Up</button>
+                    </div>
 
                 </form>
             </div>
@@ -149,6 +148,8 @@ const validateConfirmPassword = (blur) => {
 
 <style scoped>
 .background {
+    border-radius: 30px;
+
     background-color: antiquewhite;
 }
 </style>
