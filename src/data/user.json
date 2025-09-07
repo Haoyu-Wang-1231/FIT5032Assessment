@@ -1,14 +1,18 @@
 [
     {
         "username": "harland",
-        "password": "Harland123#"
+        "password": "Harland123#",
+        "usertype": "admin"
     },
     {
         "username": "Krane",
-        "password": "Harland123#"
+        "password": "Harland123#",
+        "usertype": "user"
+        
     },
     {
         "username": "Alex",
-        "password": "Harland123#"
+        "password": "Harland123#",
+        "usertype": "user"
     }
 ]

@@ -29,6 +29,8 @@ const submitLogin = () => {
             errors.value.password = "password not correct.";
         }
     } else {
+        sessionStorage.setItem('currentUser', u.username);
+        sessionStorage.setItem('usertype', '' + u.usertype);
         router.push({ name: 'Home' })
     }
 }
@@ -43,6 +45,13 @@ const validatePassword = () => {
 
 function registering() {
     router.push({ name: 'Register' })
+}
+
+function justLogin() {
+    sessionStorage.setItem('currentUser', 'harland');
+    sessionStorage.setItem('usertype', '' + 'admin');
+
+    router.push({ name: 'Home' })
 }
 </script>
 
@@ -75,6 +84,7 @@ function registering() {
                             <button type="button" @click="registering"
                                 class="btn btn-secondary me-3 mb-3">Register</button>
                             <button type="submit" class="btn btn-primary me-3 mb-3">Login</button>
+                            <button type="button" @click="justLogin" class="btn btn-primary me-3 mb-3">just login</button>
 
 
                         </div>

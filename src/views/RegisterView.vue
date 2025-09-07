@@ -21,11 +21,18 @@ const submitRegister = () => {
     validateUsername();
     validatePassword();
     validateConfirmPassword();
-    console.log("activate")
 
-    if (errors.value.username !== null || errors.value.password !== null || errors.value.confirmPassword !== null) {
+    // if (errors.value.username === null && errors.value.password === null && errors.value.confirmPassword === null) {
+    //     return;
+    // }
+    // console.log(errors.value.username)
+    // console.log(errors.value.password)
+    // console.log(errors.value.confirmPassword)
+    if(errors.value.username !== null || errors.value.password !== null || errors.value.confirmPassword !== null){
         return;
-    }
+    }   
+
+
     const u = users.find(x => { return x.username === formData.value.username && x.password === formData.value.password })
 
 
@@ -87,11 +94,13 @@ const validatePassword = (blur) => {
 }
 
 const validateConfirmPassword = (blur) => {
+    console.log("validate confirm password")
     if (formData.value.password !== formData.value.confirmPassword) {
-        if (blur) {
-            errors.value.confirmPassword = "password not matched."
-        }
+        console.log("type 1")
+        errors.value.confirmPassword = "password not matched."
     } else if (errors.value.password !== null) {
+        console.log("type 2")
+
         if (blur) {
             errors.value.confirmPassword = errors.value.password
         }
