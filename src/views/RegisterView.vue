@@ -2,25 +2,41 @@
 
 import { onMounted, ref } from 'vue'
 import router from '@/router';
+import {
+  collection,
+  addDoc,
+  onSnapshot,
+  query,
+  serverTimestamp,
+  where,
+  deleteDoc,
+  doc,
+} from 'firebase/firestore'
+import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
+import { auth, db } from '@/firebase'
 
+
+const flag = ref(false)
 
 const users = JSON.parse(localStorage.getItem('users'))
 const formData = ref({
-    username: '',
+    email: '',
     password: '',
     confirmPassword: ''
 })
 
 const errors = ref({
-    username: null,
+    email: null,
     password: null,
     confirmPassword: null
 })
 
-const submitRegister = () => {
-    validateUsername();
+const submitRegister = async() => {
+    validateEmail();
     validatePassword();
     validateConfirmPassword();
+
+    flag.value = false;
 
     // if (errors.value.username === null && errors.value.password === null && errors.value.confirmPassword === null) {
     //     return;
@@ -28,42 +44,51 @@ const submitRegister = () => {
     // console.log(errors.value.username)
     // console.log(errors.value.password)
     // console.log(errors.value.confirmPassword)
-    if(errors.value.username !== null || errors.value.password !== null || errors.value.confirmPassword !== null){
+    if(errors.value.email !== null || errors.value.password !== null || errors.value.confirmPassword !== null){
         return;
     }   
+    try{
+        const userCredential = await createUserWithEmailAndPassword(auth, formData.value.email, formData.value.password);
+        console.log("register success");
+        console.log(userCredential);
+        try{
+            await sendEmailVerification(userCredential.user);
+            console.log("verification email sent")
+        }catch(e){
+            errors.value.email = "failed to send verification email. " + e.message;
+        }
+        formData.value.email = '';
+        formData.value.password = '';
+        formData.value.confirmPassword = '';
+        flag.value = true;
+    }catch(e){
+        console.log("register failed")
+        errors.value.email = e.message;
+        formData.value.email = '';
+        formData.value.password = '';
+    }finally{
+        console.log("Register process finished")
 
-
-    const u = users.find(x => { return x.username === formData.value.username && x.password === formData.value.password })
-
-
-    console.log(formData.value.username)
-    console.log(formData.value.password)
-
-    if (users.find(x => { return x.username === formData.value.username })) {
-        errors.value.username = "user already exist!"
-
-    } else {
-        users.push({
-            username: formData.value.username,
-            password: formData.value.password
-        })
-        localStorage.setItem('users', JSON.stringify(users));
+        // router.push({ name: 'Login' })
+    }
+    if(flag.value){
         router.push({ name: 'Login' })
     }
 
+    
 }
 
 
-const validateUsername = (blur) => {
-    const username = formData.value.username;
-    const u = users.find(x => { return x.username === formData.value.username });
+const validateEmail = (blur) => {
+    const email = formData.value.email;
+    const u = users.find(x => { return x.email === formData.value.email });
 
-    if (username.length < 3) {
+    if (email.length < 3) {
         if (blur) {
-            errors.value.username = "Username have at least 3 characters"
+            errors.value.email = "Email have at least 3 characters"
         }
     } else {
-        errors.value.username = null
+        errors.value.email = null
     }
 }
 
@@ -118,25 +143,25 @@ const validateConfirmPassword = (blur) => {
             <div class="d-flex justify-content-center">
                 <form class="col-xxl-6 col-lg-6 col-md-7 col-sm-8 col-10" @submit.prevent="submitRegister">
                     <div class="mb-3">
-                        <label for="username" class="form-label">Username</label>
-                        <input type="text" class="form-control" @blur="() => validateUsername(true)"
-                            @input="() => validateUsername(false)" v-model="formData.username" id="username">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="text" class="form-control" @blur="() => validateEmail(true)"
+                            @input="() => validateEmail(false)" v-model="formData.email" id="username">
                         </input>
-                        <div v-if="errors.username" class="text-danger">{{ errors.username }}</div>
+                        <div v-if="errors.email" class="text-danger">{{ errors.email }}</div>
                     </div>
                     <div class="mb-3">
-                        <label for="username" class="form-label">Password</label>
+                        <label for="email" class="form-label">Password</label>
                         <input type="text" class="form-control mx-auto" 
                             @blur="() => validatePassword(true)"
-                            @input="() => validatePassword(false)" v-model="formData.password" id="username">
+                            @input="() => validatePassword(false)" v-model="formData.password" id="email">
                         </input>
                         <div v-if="errors.password" class="text-danger">{{ errors.password }}</div>
                     </div>
                     <div class="mb-3">
-                        <label for="username" class="form-label">Confirm Password</label>
+                        <label for="password" class="form-label">Confirm Password</label>
                         <input type="text" class="form-control" @blur="() => validateConfirmPassword(true)"
                             @input="() => validateConfirmPassword(false)" v-model="formData.confirmPassword"
-                            id="username">
+                            id="password">
                         </input>
                         <div v-if="errors.confirmPassword" class="text-danger">{{ errors.confirmPassword }}</div>
                         <!-- <div v-if="errors.confirmPassword" class="text-danger">{{ errors.confirmPassword }} </div> -->

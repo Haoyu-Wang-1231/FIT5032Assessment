@@ -1,47 +1,36 @@
 <script setup>
 import { ref } from 'vue'
 import router from '@/router';
+import { createUserWithEmailAndPassword, sendEmailVerification, signInWithEmailAndPassword } from 'firebase/auth';
+import { auth, db } from '@/firebase'
+
 
 const users = JSON.parse(localStorage.getItem('users'))
 
 const formData = ref({
-    username: '',
+    email: '',
     password: ''
 })
 
-const errors = ref({
-    username: null,
-    password: null
-})
+const errors = ref('')
 
-const submitLogin = () => {
-    const u = users.find(x => { return x.username === formData.value.username });
-    if (!u) {
-        formData.value.username = '';
-        formData.value.password = '';
-        errors.value.username = "user not exist.";
-
-    } else if (u.password !== formData.value.password) {
-        if (formData.value.password === '') {
-            errors.value.password = "no password input"
-        } else {
-            formData.value.password = '';
-            errors.value.password = "password not correct.";
-        }
-    } else {
-        sessionStorage.setItem('currentUser', u.username);
-        sessionStorage.setItem('usertype', '' + u.usertype);
+const submitLogin = async() => {
+    
+    try{
+        await signInWithEmailAndPassword(auth, formData.value.email, formData.value.password)
+    }catch(e){
+        errors.value = e.message
+        console.log('Login failed: ', e)
+    }finally{
+        console.log('Login Finished')
+    }
+    
+    if(errors.value == ''){
         router.push({ name: 'Home' })
     }
 }
 
-const validateUsername = () => {
-    errors.value.username = null
-}
 
-const validatePassword = () => {
-    errors.value.password = null
-}
 
 function registering() {
     router.push({ name: 'Register' })
@@ -62,19 +51,19 @@ function justLogin() {
                 <div class="d-flex justify-content-center">
                     <form class="col-xxl-6 col-lg-6 col-md-7 col-sm-8 col-10" @submit.prevent="submitLogin">
                         <div class="mb-3">
-                            <label for="username" class="form-label">user name</label>
-                            <input type="text" class="form-control" @focus="validateUsername"
-                                v-model="formData.username" id="username">
+                            <label for="email" class="form-label">user name</label>
+                            <input type="text" class="form-control"
+                                v-model="formData.email" id="email">
                             </input>
-                            <div v-if="errors.username" class="text-danger">{{ errors.username }}</div>
+                            <div v-if="errors.email" class="text-danger">{{ errors.email }}</div>
                             <!-- <input type="text" class="form-control" id="username" @blur="() => validateName(true)"
                             @input="() => validateName(false)" v-model="formData.username">
                         <div v-if="errors.username" class="text-danger">{{ errors.username }}</div> -->
                         </div>
                         <div class="mb-3">
-                            <label for="username" class="form-label">password</label>
-                            <input type="text" class="form-control" @focus="validatePassword"
-                                v-model="formData.password" id="username">
+                            <label for="password" class="form-label">password</label>
+                            <input type="text" class="form-control"
+                                v-model="formData.password" id="password">
                             </input>
                             <div v-if="errors.password" class="text-danger">{{ errors.password }}</div>
 

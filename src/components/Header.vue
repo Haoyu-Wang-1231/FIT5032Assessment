@@ -12,13 +12,10 @@
 
             <routerLink to="/register">Register</routerLink>
             <routerLink to="/login">Login</routerLink> -->
-            
-            <RouterLink v-for="link in links" 
-                :key="link.to" 
-                :to="link.to" 
-                :class="{ active: route.path === link.to }"
-                @click = "() => handleActive(link)">
-                
+
+            <RouterLink v-for="link in links" :key="link.to" :to="link.to" :class="{ active: route.path === link.to }"
+                @click="() => handleActive(link)">
+
                 {{ link.name }}
             </RouterLink>
 
@@ -31,7 +28,7 @@
 import { computed, onMounted, ref } from 'vue';
 import { RouterLink, routerViewLocationKey, useRoute } from 'vue-router';
 import { navConfig } from "@/config/nav";
-
+import { auth, db } from '@/firebase'
 const route = useRoute();
 
 
@@ -40,15 +37,18 @@ const links = computed(() => {
     return navConfig[key] || [];
 })
 
-const handleActive = (link) => {
+const handleActive = async (link) => {
     // This function can be used to handle any additional logic when a link is clicked
-    if (link.name ==='Log out') {
-        console.log('Logging out user');
-        sessionStorage.removeItem('currentUser');
-        sessionStorage.removeItem('usertype');
+    if (link.name === 'Log out') {
+        try {
+            await auth.signOut()
+            console.log('User logged out successfully')
+            console.log(`Navigating to ${link.name}`);
+        } catch (err) {
+            console.error('Error logging out:', err)
+        }
     }
-    
-    console.log(`Navigating to ${link.name}`);
+
 }
 
 </script>
