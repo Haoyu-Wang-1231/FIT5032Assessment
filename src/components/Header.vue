@@ -12,6 +12,8 @@
 
             <routerLink to="/register">Register</routerLink>
             <routerLink to="/login">Login</routerLink> -->
+            <div v-if="userStore.email">{{ userStore.email }}</div>
+            <div v-if="userStore.role">{{ userStore.role }}</div>
 
             <RouterLink v-for="link in links" :key="link.to" :to="link.to" :class="{ active: route.path === link.to }"
                 @click="() => handleActive(link)">
@@ -25,12 +27,16 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { RouterLink, routerViewLocationKey, useRoute } from 'vue-router';
 import { navConfig } from "@/config/nav";
 import { auth, db } from '@/firebase'
-const route = useRoute();
+import { useUserStore } from '@/store/user';
 
+
+
+const route = useRoute();
+const userStore = useUserStore();
 
 const links = computed(() => {
     const key = route.meta.navkey || 'default';
@@ -42,6 +48,8 @@ const handleActive = async (link) => {
     if (link.name === 'Log out') {
         try {
             await auth.signOut()
+            userStore.clearUser()
+
             console.log('User logged out successfully')
             console.log(`Navigating to ${link.name}`);
         } catch (err) {
@@ -50,6 +58,7 @@ const handleActive = async (link) => {
     }
 
 }
+
 
 </script>
 

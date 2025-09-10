@@ -1,46 +1,97 @@
 <script setup>
 import { ref } from 'vue'
 import router from '@/router';
+import { onBeforeMount } from 'vue';
+import {useUserStore} from '@/store/user'
 import { createUserWithEmailAndPassword, sendEmailVerification, signInWithEmailAndPassword } from 'firebase/auth';
 import { auth, db } from '@/firebase'
 
+import {
+  collection,
+  addDoc,
+  onSnapshot,
+  query,
+  serverTimestamp,
+  where,
+  getDocs,
+  deleteDoc,
+  doc,
+} from 'firebase/firestore'
 
-const users = JSON.parse(localStorage.getItem('users'))
+
+const notes = ref([])
+const userStore = useUserStore()
+const userCollection = collection(db, 'user_role')
+
+
+// userStore.email
+// userStore.role
 
 const formData = ref({
     email: '',
     password: ''
 })
 
-const errors = ref('')
-
-const submitLogin = async() => {
-    
-    try{
-        await signInWithEmailAndPassword(auth, formData.value.email, formData.value.password)
-    }catch(e){
-        errors.value = e.message
-        console.log('Login failed: ', e)
-    }finally{
-        console.log('Login Finished')
-    }
-    
-    if(errors.value == ''){
-        router.push({ name: 'Home' })
-    }
+async function getUser(email){
+    const q = query(userCollection, where("email", "==", email));
+    const noteData = []
+    const querySnapshot = await getDocs(q);
+    querySnapshot.docs.forEach((doc) => {
+        noteData.push(doc.data())
+        // console.log(doc.id, " => ", doc.data());
+    });
+    notes.value = noteData
 }
 
 
+const errors = ref('')
 
 function registering() {
     router.push({ name: 'Register' })
 }
 
-function justLogin() {
-    sessionStorage.setItem('currentUser', 'harland');
-    sessionStorage.setItem('usertype', '' + 'admin');
+const submitLogin = async() => {
+    
+    try{
+        const userCredential = await signInWithEmailAndPassword(auth, formData.value.email, formData.value.password)
 
-    router.push({ name: 'Home' })
+        await getUser(userCredential.user.email);
+        userStore.setUser(auth.currentUser.email, notes.value[0].role)
+    }catch(e){
+        errors.value = e.message
+        console.log('Login failed: ', e)
+    }finally{
+        console.log(auth.currentUser)
+        console.log(notes.value)
+        console.log('Login Finished')
+    }
+    
+    if(errors.value == ''){
+
+        router.push({ name: 'Home' })
+    }
+}
+
+async function justLogin () {
+    try{
+        const userCredential = await signInWithEmailAndPassword(auth, '123456789@qq.com', 'Harland123#')
+        
+        await getUser(userCredential.user.email);
+        userStore.setUser(auth.currentUser.email, notes.value[0].role)
+        // userStore.email = auth.currentUser.email
+        // userStore.role = notes.value[0].role
+    }catch(e){
+        errors.value = e.message
+        console.log('Login failed: ', e)
+    }finally{
+        console.log(auth.currentUser)
+        console.log(notes.value)
+        console.log('Login Finished')   
+    }
+
+    if(errors.value == ''){
+        router.push({ name: 'Home' })
+    }
 }
 </script>
 

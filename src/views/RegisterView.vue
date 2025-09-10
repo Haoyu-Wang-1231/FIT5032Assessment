@@ -2,23 +2,35 @@
 
 import { onMounted, ref } from 'vue'
 import router from '@/router';
+import { onBeforeMount } from 'vue';
 import {
-  collection,
-  addDoc,
-  onSnapshot,
-  query,
-  serverTimestamp,
-  where,
-  deleteDoc,
-  doc,
+    collection,
+    addDoc,
+    setDoc,
+    onSnapshot,
+    query,
+    serverTimestamp,
+    where,
+    deleteDoc,
+    doc,
 } from 'firebase/firestore'
 import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
 import { auth, db } from '@/firebase'
 
 
-const flag = ref(false)
+const notes = ref([])
+const newText = ref('')
+const unsubscribe = ref(null)
 
-const users = JSON.parse(localStorage.getItem('users'))
+const noteCollection = collection(db, 'user_role')
+
+
+
+
+
+
+
+const flag = ref(false)
 const formData = ref({
     email: '',
     password: '',
@@ -31,57 +43,57 @@ const errors = ref({
     confirmPassword: null
 })
 
-const submitRegister = async() => {
+
+
+const submitRegister = async () => {
     validateEmail();
     validatePassword();
     validateConfirmPassword();
 
     flag.value = false;
-
-    // if (errors.value.username === null && errors.value.password === null && errors.value.confirmPassword === null) {
-    //     return;
-    // }
-    // console.log(errors.value.username)
-    // console.log(errors.value.password)
-    // console.log(errors.value.confirmPassword)
-    if(errors.value.email !== null || errors.value.password !== null || errors.value.confirmPassword !== null){
+    if (errors.value.email !== null || errors.value.password !== null || errors.value.confirmPassword !== null) {
         return;
-    }   
-    try{
+    }
+    try {
         const userCredential = await createUserWithEmailAndPassword(auth, formData.value.email, formData.value.password);
         console.log("register success");
         console.log(userCredential);
-        try{
+        try {
             await sendEmailVerification(userCredential.user);
             console.log("verification email sent")
-        }catch(e){
+        } catch (e) {
             errors.value.email = "failed to send verification email. " + e.message;
         }
+        await setDoc(doc(db, 'user_role', userCredential.user.uid), {
+            email: userCredential.user.email,
+            role: 'viewer',
+            createAt: serverTimestamp()
+        })        
         formData.value.email = '';
         formData.value.password = '';
         formData.value.confirmPassword = '';
         flag.value = true;
-    }catch(e){
+    } catch (e) {
         console.log("register failed")
+        console.log(e.message)
         errors.value.email = e.message;
         formData.value.email = '';
         formData.value.password = '';
-    }finally{
+    } finally {
         console.log("Register process finished")
 
         // router.push({ name: 'Login' })
     }
-    if(flag.value){
+    if (flag.value) {
         router.push({ name: 'Login' })
     }
 
-    
+
 }
 
 
 const validateEmail = (blur) => {
     const email = formData.value.email;
-    const u = users.find(x => { return x.email === formData.value.email });
 
     if (email.length < 3) {
         if (blur) {
@@ -151,8 +163,7 @@ const validateConfirmPassword = (blur) => {
                     </div>
                     <div class="mb-3">
                         <label for="email" class="form-label">Password</label>
-                        <input type="text" class="form-control mx-auto" 
-                            @blur="() => validatePassword(true)"
+                        <input type="text" class="form-control mx-auto" @blur="() => validatePassword(true)"
                             @input="() => validatePassword(false)" v-model="formData.password" id="email">
                         </input>
                         <div v-if="errors.password" class="text-danger">{{ errors.password }}</div>
