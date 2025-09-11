@@ -18,6 +18,7 @@ import {
     doc,
     getDoc,
 } from 'firebase/firestore'
+import { sanitizePlainText } from "@/security/sanitize";
 import { useUserStore } from "@/store/user";
 
 const props = defineProps({
@@ -49,7 +50,7 @@ const submitComment = async() => {
         await setDoc(commentRef, {
             userId: userStore.uid,
             rating: Number(comment.value.rating),
-            comment: comment.value.description,
+            comment: sanitizePlainText(comment.value.description, 250),
             createdAt: serverTimestamp()
         }, {merge: true})
     }catch(e){
@@ -70,19 +71,18 @@ const submitComment = async() => {
 <template>
     <div class="card flex justify-center">
         <button class="btn btn-primary" label="Show" @click="visible = true">Rating</button>
-        <Dialog v-model:visible="visible" modal :header="recipe" :style="{ width: '30%' }">
+        <Dialog class="col-xxl-4 col-lg-6 col-md-8 col-sm-10 col-12" v-model:visible="visible" modal :header="recipe">
             <div class="text-surface-500 dark:text-surface-400 block mb-3">Sharing your comment</div>
-            {{ recipeId }}
-            <div class="flex items-center gap-4 mt-2 mb-4">
+            <div class="d-flex justify-content-between align-items-center flex-column flex-sm-row mb-3">
                 <label for="username" class="font-semibold w-24">Rating</label>
                 <!-- <input id="username" class="flex-auto" autocomplete="off" /> -->
-                <Select v-model="comment.rating" :options="scores" placeholder="Select a number" class="w-40" />
+                <Select v-model="comment.rating" :options="scores" placeholder="Select rating" :style="{ width: '40%' }" />
             </div>
-            <div class="flex items-center gap-4 mb-3">
+            <div class="d-flex justify-content-between align-items-center flex-column flex-sm-row mb-3">
                 <label for="email" class="font-semibold w-24">Comments</label>
-                <InputText v-model="comment.description" id="email" class="flex-auto" autocomplete="off" />
+                <InputText v-model="comment.description" id="email" class="flex-auto" :style="{ width: '40%' }" autocomplete="off" />
             </div>
-            <div class="mt-2 flex justify-end gap-2">
+            <div class="d-flex justify-content-center align-items-center flex-column flex-sm-row">
                 <button class="btn btn-secondary me-2" type="button" label="Cancel" severity="secondary"
                     @click="visible = false">Cancel</button>
                 <button class="btn btn-primary" type="button" label="Save" @click="submitComment">Save</button>

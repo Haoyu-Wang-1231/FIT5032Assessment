@@ -1,4 +1,6 @@
+import { getDoc, doc} from "firebase/firestore";
 import { defineStore } from "pinia";
+import { db } from '@/firebase'
 
 
 export const useUserStore = defineStore('user', {
@@ -10,8 +12,19 @@ export const useUserStore = defineStore('user', {
         }
     },
     actions: {
+        async fetchUserRole(){
+            if (!this.uid){
+                return
+            }
+            const userDoc = await getDoc(doc(db, 'user_role', this.uid))
+            if(userDoc.exists()){
+                this.role=userDoc.data().role
+            }else{
+                this.role = 'viewer'
+            }
+        },
         setUser(uid, email, role){
-            this.uid = uid,
+            this.uid = uid
             this.email = email
             this.role = role
         },
@@ -20,10 +33,6 @@ export const useUserStore = defineStore('user', {
             this.email = null,
             this.role = null
         }
-    },
-    persist:{
-        key: 'user',
-        storage: sessionStorage
     }
 });
 

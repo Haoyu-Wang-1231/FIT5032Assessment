@@ -12,7 +12,6 @@
 
             <routerLink to="/register">Register</routerLink>
             <routerLink to="/login">Login</routerLink> -->
-            <div v-if="userStore.email">{{ userStore.email }}</div>
             <div v-if="userStore.role">{{ userStore.role }}</div>
 
             <RouterLink v-for="link in links" :key="link.to" :to="link.to" :class="{ active: route.path === link.to }"
@@ -35,6 +34,7 @@ import { useUserStore } from '@/store/user';
 
 
 
+
 const route = useRoute();
 const userStore = useUserStore();
 
@@ -48,8 +48,6 @@ const handleActive = async (link) => {
     if (link.name === 'Log out') {
         try {
             await auth.signOut()
-            userStore.clearUser()
-
             console.log('User logged out successfully')
             console.log(`Navigating to ${link.name}`);
         } catch (err) {

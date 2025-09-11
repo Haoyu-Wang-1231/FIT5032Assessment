@@ -2,7 +2,6 @@
 import { ref } from 'vue'
 import router from '@/router';
 import { onBeforeMount } from 'vue';
-import {useUserStore} from '@/store/user'
 import { createUserWithEmailAndPassword, sendEmailVerification, signInWithEmailAndPassword } from 'firebase/auth';
 import { auth, db } from '@/firebase'
 
@@ -20,7 +19,6 @@ import {
 
 
 const notes = ref([])
-const userStore = useUserStore()
 const userCollection = collection(db, 'user_role')
 
 
@@ -56,7 +54,7 @@ const submitLogin = async() => {
         const userCredential = await signInWithEmailAndPassword(auth, formData.value.email, formData.value.password)
 
         await getUser(userCredential.user.email);
-        userStore.setUser(auth.currentUser.uid, auth.currentUser.email, notes.value[0].role)
+        // userStore.setUser(auth.currentUser.uid, auth.currentUser.email, notes.value[0].role)
     }catch(e){
         errors.value = e.message
         console.log('Login failed: ', e)
@@ -77,7 +75,6 @@ async function justLogin () {
         const userCredential = await signInWithEmailAndPassword(auth, '123456789@qq.com', 'Harland123#')
         
         await getUser(userCredential.user.email);
-        userStore.setUser(auth.currentUser.uid, auth.currentUser.email, notes.value[0].role)
         // userStore.email = auth.currentUser.email
         // userStore.role = notes.value[0].role
     }catch(e){
@@ -100,9 +97,8 @@ async function justAdmin () {
         const userCredential = await signInWithEmailAndPassword(auth, 'admin@gmail.com', 'Harland123#')
         
         await getUser(userCredential.user.email);
-        userStore.setUser(auth.currentUser.uid, auth.currentUser.email, notes.value[0].role)
-        // userStore.email = auth.currentUser.email
-        // userStore.role = notes.value[0].role
+        // userStore.setUser(auth.currentUser.uid, auth.currentUser.email, notes.value[0].role)
+
     }catch(e){
         errors.value = e.message
         console.log('Login failed: ', e)
