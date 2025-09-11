@@ -56,7 +56,7 @@ const submitLogin = async() => {
         const userCredential = await signInWithEmailAndPassword(auth, formData.value.email, formData.value.password)
 
         await getUser(userCredential.user.email);
-        userStore.setUser(auth.currentUser.email, notes.value[0].role)
+        userStore.setUser(auth.currentUser.uid, auth.currentUser.email, notes.value[0].role)
     }catch(e){
         errors.value = e.message
         console.log('Login failed: ', e)
@@ -77,7 +77,30 @@ async function justLogin () {
         const userCredential = await signInWithEmailAndPassword(auth, '123456789@qq.com', 'Harland123#')
         
         await getUser(userCredential.user.email);
-        userStore.setUser(auth.currentUser.email, notes.value[0].role)
+        userStore.setUser(auth.currentUser.uid, auth.currentUser.email, notes.value[0].role)
+        // userStore.email = auth.currentUser.email
+        // userStore.role = notes.value[0].role
+    }catch(e){
+        errors.value = e.message
+        console.log('Login failed: ', e)
+    }finally{
+        console.log(auth.currentUser)
+        console.log(notes.value)
+        console.log('Login Finished')   
+    }
+
+    if(errors.value == ''){
+        router.push({ name: 'Home' })
+    }
+}
+
+
+async function justAdmin () {
+    try{
+        const userCredential = await signInWithEmailAndPassword(auth, 'admin@gmail.com', 'Harland123#')
+        
+        await getUser(userCredential.user.email);
+        userStore.setUser(auth.currentUser.uid, auth.currentUser.email, notes.value[0].role)
         // userStore.email = auth.currentUser.email
         // userStore.role = notes.value[0].role
     }catch(e){
@@ -125,6 +148,7 @@ async function justLogin () {
                                 class="btn btn-secondary me-3 mb-3">Register</button>
                             <button type="submit" class="btn btn-primary me-3 mb-3">Login</button>
                             <button type="button" @click="justLogin" class="btn btn-primary me-3 mb-3">just login</button>
+                            <button type="button" @click="justAdmin" class="btn btn-primary me-3 mb-3">just admin</button>
 
 
                         </div>

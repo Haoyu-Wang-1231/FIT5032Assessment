@@ -2,6 +2,9 @@
 import { ref } from 'vue'
 import { RouterLink } from 'vue-router';
 import { db } from '@/firebase'
+import { useUserStore } from '@/store/user';
+
+
 
 import {
     collection,
@@ -19,28 +22,29 @@ import { onMounted } from 'vue';
 import CommentDialog from '@/components/commentDialog.vue';
 
 const recipes = ref([])
+const userStore = useUserStore()
 
 
 const recipesCollection = collection(db, 'recipe')
 // const commentsCollection = collection(db, 'recipe/{recipleId/comment}')
 
 
-const loadrating = async(recipeId) => {
+const loadrating = async (recipeId) => {
     const q = query(collection(db, 'recipe', recipeId, 'comment'))
     let sum = 0
     let count = 0
-    
+
     const querySnapshot = await getDocs(q);
-    querySnapshot.forEach(d=>{
+    querySnapshot.forEach(d => {
         const r = d.data().rating
-        if(typeof r === 'number'){
+        if (typeof r === 'number') {
             sum += r
             count += 1
         }
     })
 
 
-    return { avg: count ? +(sum/count).toFixed(1):0, count: count ? count:0 }
+    return { avg: count ? +(sum / count).toFixed(1) : 0, count: count ? count : 0 }
 
 }
 
@@ -57,15 +61,6 @@ const recipesNotesListener = async () => {
             return { id: d.id, ...d.data(), rating, ratingNum }
         })
     )
-
-
-    // querySnapshot.docs.map(async (d) => {
-    //     const rate = await loadrating(d.id)
-    //     const rating = rate.avg
-    //     const ratingNum = rate.count
-
-    //     recipeData.push({ id: d.id, ...d.data(), rating, ratingNum })
-    // })
     recipes.value = rows
     console.log("recipesNotesListener", recipes)
 }
@@ -76,6 +71,8 @@ onMounted(() => {
     console.log(recipes)
     console.log('Recipe View Mounted');
 })
+
+
 
 const rating = () => {
     console.log("rating")
@@ -89,16 +86,23 @@ const rating = () => {
             <h1 class="mt-5 text-center">Nutrition Recipes</h1>
             <div>
                 <div v-for="(card, index) in recipes" :key="index" class="card m-5">
-                    <div class="card-header">
-                        {{ card.title }}
+                    <div class="card-header d-flex justify-content-between">
+                        <div>
+                            {{ card.title }}
+                        </div>
+                        <div v-if="userStore.role === 'admin'">
+                            <button class="btn btn-danger">remove recipe</button>
+                        </div>
+
                     </div>
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item">Author: {{ card.author }}</li>
                         <li class="list-group-item d-flex justify-content-between gap-2">
                             <div>
-                                rating: {{ card.rating? card.rating:"no rating" }} ({{ card.ratingNum ? card.ratingNum:0 }} reviews)
+                                rating: {{ card.rating ? card.rating : "no rating" }} ({{ card.ratingNum ? card.ratingNum : 0
+                                }} reviews)
                             </div>
-                            <CommentDialog />
+                            <CommentDialog :recipe="card.title" :recipe-id="card.id"/>
                             <!-- <button type="submit" class="btn btn-primary me-3 mb-3">Login</button> -->
 
 
@@ -108,6 +112,9 @@ const rating = () => {
                     </ul>
                 </div>
 
+            </div>
+            <div class="d-flex justify-content-center">
+                <button v-if="userStore.role === 'admin'" class="btn btn-primary">Add Recipes</button>
             </div>
         </div>
     </div>
