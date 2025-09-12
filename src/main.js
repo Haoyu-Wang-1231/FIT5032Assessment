@@ -16,27 +16,35 @@ const app = createApp(App)
 
 const pinia = createPinia()
 pinia.use(piniaPersist)
+
+app.use(pinia)
+app.use(router)
 app.use(PrimeVue, {
   theme: {
     preset: Aura,   
   }
 })
+
 auth.onAuthStateChanged(async (user) => {
   const userStore = useUserStore()
   console.log('user:')
   console.log(user)
+  
+  
 
   if (user){
     userStore.setUser(user.uid, user.email, null)
+    console.log(user.uid)
+    console.log(user.email)
     await userStore.fetchUserRole()
   } else{
     userStore.clearUser()
+    
   }
 
 })
 
-app.use(pinia)
-app.use(router)
+
 
 app.mount('#app')
 // createApp(App).mount('#app')

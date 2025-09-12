@@ -44,12 +44,9 @@ const links = computed(() => {
 })
 
 const handleActive = async (link) => {
-    // This function can be used to handle any additional logic when a link is clicked
     if (link.name === 'Log out') {
         try {
             await auth.signOut()
-            console.log('User logged out successfully')
-            console.log(`Navigating to ${link.name}`);
         } catch (err) {
             console.error('Error logging out:', err)
         }

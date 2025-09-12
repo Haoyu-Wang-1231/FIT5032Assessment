@@ -16,11 +16,13 @@ export const useUserStore = defineStore('user', {
             if (!this.uid){
                 return
             }
+            console.log('used uid: ' + this.uid)
             const userDoc = await getDoc(doc(db, 'user_role', this.uid))
             if(userDoc.exists()){
-                this.role=userDoc.data().role
+                console.log("no")
+                this.role = userDoc.data().role
             }else{
-                this.role = 'viewer'
+                this.role = null
             }
         },
         setUser(uid, email, role){

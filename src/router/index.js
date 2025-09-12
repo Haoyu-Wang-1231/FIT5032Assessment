@@ -5,6 +5,9 @@ import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
 import RegisterView from '../views/RegisterView.vue'
 import RecipeView from '@/views/RecipeView.vue'
+import { useUserStore } from '@/store/user'
+import { auth } from '@/firebase'
+
 
 const routes = [
   {
@@ -42,5 +45,27 @@ const router = createRouter({
   history: createWebHistory(),
   routes: routes,
 })
+
+router.beforeEach(async(to) => {
+  const userStore = useUserStore()
+
+  if(to.name === 'Login' || to.name ==='Register'){
+    await auth.signOut()
+    userStore.clearUser()
+    // window.location.reload()
+    return true
+  }
+
+  if(!userStore.uid || !userStore.email || !userStore.role){
+    userStore.clearUser()
+    return{ name: 'Login', replace: true}
+  }
+
+  // if(to.name ==='Login'){
+  //   return {name: 'Home', replace: true}
+  // }
+
+
+});
 
 export default router

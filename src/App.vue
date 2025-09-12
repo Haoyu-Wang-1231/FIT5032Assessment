@@ -7,17 +7,7 @@ import { onMounted, ref } from 'vue'
 const users = ref(userJson)
 
 
-onMounted(() => {
-  localStorage.setItem('users', JSON.stringify(users.value));
 
-  // if(localStorage.getItem('users') === null){
-  //   localStorage.setItem('users', JSON.stringify(users.value));
-  //   console.log('create user lists')
-    
-  // }
-  // console.log('user list exists')
-
-})
 </script>
 
 <template>
