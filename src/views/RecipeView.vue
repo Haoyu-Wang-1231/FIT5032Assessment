@@ -85,6 +85,7 @@ const deleteRecipe = async(recipeId) => {
     }catch(error){
         console.log(error)
     }
+    window.location.reload()
 }
 
 </script>

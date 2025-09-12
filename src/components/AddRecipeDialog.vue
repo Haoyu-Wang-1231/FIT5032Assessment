@@ -50,6 +50,8 @@ const saveRecipe = async() => {
     }catch(error){
         console.log(error)
     }
+    visible.value = false
+    window.location.reload()
 }
 
 </script>
