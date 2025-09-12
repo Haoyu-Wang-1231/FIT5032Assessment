@@ -56,10 +56,11 @@ router.beforeEach(async(to) => {
     return true
   }
 
-  if(!userStore.uid || !userStore.email || !userStore.role){
-    userStore.clearUser()
-    return{ name: 'Login', replace: true}
-  }
+  // if(!userStore.uid || !userStore.email || !userStore.role){
+  //   await auth.signOut()
+  //   userStore.clearUser()
+  //   return{ name: 'Login', replace: true}
+  // }
 
   // if(to.name ==='Login'){
   //   return {name: 'Home', replace: true}
