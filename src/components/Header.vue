@@ -12,7 +12,6 @@
 
             <routerLink to="/register">Register</routerLink>
             <routerLink to="/login">Login</routerLink> -->
-            <div v-if="userStore.role">{{ userStore.role }}</div>
 
             <RouterLink v-for="link in links" :key="link.to" :to="link.to" :class="{ active: route.path === link.to }"
                 @click="() => handleActive(link)">

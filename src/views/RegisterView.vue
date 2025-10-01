@@ -44,7 +44,6 @@ const errors = ref({
 })
 
 
-
 const submitRegister = async () => {
     validateEmail();
     validatePassword();
@@ -81,16 +80,12 @@ const submitRegister = async () => {
         formData.value.password = '';
     } finally {
         console.log("Register process finished")
-
         // router.push({ name: 'Login' })
     }
     if (flag.value) {
         router.push({ name: 'Login' })
     }
-
-
 }
-
 
 const validateEmail = (blur) => {
     const email = formData.value.email;

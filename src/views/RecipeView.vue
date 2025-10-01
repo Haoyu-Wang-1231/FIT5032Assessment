@@ -5,6 +5,14 @@ import { db } from '@/firebase'
 import { useUserStore } from '@/store/user';
 
 
+import { getFunctions, httpsCallable, connectFunctionsEmulator } from "firebase/functions";
+
+const functions = getFunctions();
+const getRecipes = httpsCallable(functions, "getRecipes");
+
+// emulator
+connectFunctionsEmulator(functions, "localhost", 5001);
+
 
 import {
     collection,
@@ -49,22 +57,25 @@ const loadrating = async (recipeId) => {
 
 }
 
+const recipesNotesListener = async ()=> {
+    recipes.value = (await getRecipes()).data;
 
-const recipesNotesListener = async () => {
-    const q = query(recipesCollection)
-    const querySnapshot = await getDocs(q);
-    const rows = await Promise.all(
-        querySnapshot.docs.map(async (d) => {
-            const rate = await loadrating(d.id)
-            const rating = rate.avg
-            const ratingNum = rate.count
-
-            return { id: d.id, ...d.data(), rating, ratingNum }
-        })
-    )
-    recipes.value = rows
-    console.log("recipesNotesListener", recipes)
 }
+// const recipesNotesListener = async () => {
+//     const q = query(recipesCollection)
+//     const querySnapshot = await getDocs(q);
+//     const rows = await Promise.all(
+//         querySnapshot.docs.map(async (d) => {
+//             const rate = await loadrating(d.id)
+//             const rating = rate.avg
+//             const ratingNum = rate.count
+
+//             return { id: d.id, ...d.data(), rating, ratingNum }
+//         })
+//     )
+//     recipes.value = rows
+//     console.log("recipesNotesListener", recipes)
+// }
 
 onMounted(() => {
     recipesNotesListener()
