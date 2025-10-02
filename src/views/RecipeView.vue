@@ -59,7 +59,6 @@ const loadrating = async (recipeId) => {
 
 const recipesNotesListener = async ()=> {
     recipes.value = (await getRecipes()).data;
-
 }
 // const recipesNotesListener = async () => {
 //     const q = query(recipesCollection)

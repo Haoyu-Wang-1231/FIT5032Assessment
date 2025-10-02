@@ -3,7 +3,8 @@
   "description": "Cloud Functions for Firebase",
   "scripts": {
     "lint": "eslint .",
-    "dev": "firebase emulators:start",
+    "emu": "firebase emulators:start",
+    "dev": "firebase emulators:start --import ./.emulator-data --export-on-exit",
     "serve": "firebase emulators:start --only functions",
     "shell": "firebase functions:shell",
     "start": "npm run shell",

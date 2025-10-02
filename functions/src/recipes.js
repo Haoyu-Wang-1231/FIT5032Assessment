@@ -1,7 +1,10 @@
 const { onCall, HttpsError } = require('firebase-functions/v2/https')
-const { getFirestore, AggregateField } = require('firebase-admin/firestore')
+const { getFirestore } = require('firebase-admin/firestore')
 
 const db = getFirestore()
+
+
+
 
 const getRecipes = onCall(async (request) => {
   if (!request.auth) {
