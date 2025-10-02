@@ -1,19 +1,17 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { RouterLink } from 'vue-router';
-import { db } from '@/firebase'
+import { db, auth, functions } from '@/firebase'
 import { useUserStore } from '@/store/user';
+import { storeToRefs } from 'pinia'
+import { onAuthStateChanged } from "firebase/auth";
+import { httpsCallable } from 'firebase/functions';
 
 
-import { getFunctions, httpsCallable, connectFunctionsEmulator } from "firebase/functions";
-
-const functions = getFunctions();
-const getRecipes = httpsCallable(functions, "getRecipes");
-
-// emulator
-connectFunctionsEmulator(functions, "localhost", 5001);
 
 
+// const functions = getFunctions();
+// const getRecipes = httpsCallable(functions, "getRecipes");
 import {
     collection,
     addDoc,
@@ -26,61 +24,38 @@ import {
     doc,
     getDoc,
 } from 'firebase/firestore'
-import { onMounted } from 'vue';
 import CommentDialog from '@/components/commentDialog.vue';
 import AddRecipeDialog from '@/components/AddRecipeDialog.vue';
 
 const recipes = ref([])
 const userStore = useUserStore()
+const { isSignedIn, isAdmin, role, email, loading } = storeToRefs(userStore)
 
+function waitForAuth() {
+  return new Promise(resolve => {
+    const off = onAuthStateChanged(auth, u => { off(); resolve(u) })
+  })
+}
 
-const recipesCollection = collection(db, 'recipe')
-// const commentsCollection = collection(db, 'recipe/{recipleId/comment}')
-
-
-const loadrating = async (recipeId) => {
-    const q = query(collection(db, 'recipe', recipeId, 'comment'))
-    let sum = 0
-    let count = 0
-
-    const querySnapshot = await getDocs(q);
-    querySnapshot.forEach(d => {
-        const r = d.data().rating
-        if (typeof r === 'number') {
-            sum += r
-            count += 1
-        }
-    })
-
-
-    return { avg: count ? +(sum / count).toFixed(1) : 0, count: count ? count : 0 }
+async function loadRecipes(){
+    try{
+        const call = httpsCallable(functions, "getRecipes");
+        const result = await call();
+        recipes.value = result.data;
+    }catch(e){
+        console.log(e) 
+    }
 
 }
 
-const recipesNotesListener = async ()=> {
-    recipes.value = (await getRecipes()).data;
-}
-// const recipesNotesListener = async () => {
-//     const q = query(recipesCollection)
-//     const querySnapshot = await getDocs(q);
-//     const rows = await Promise.all(
-//         querySnapshot.docs.map(async (d) => {
-//             const rate = await loadrating(d.id)
-//             const rating = rate.avg
-//             const ratingNum = rate.count
 
-//             return { id: d.id, ...d.data(), rating, ratingNum }
-//         })
-//     )
-//     recipes.value = rows
-//     console.log("recipesNotesListener", recipes)
-// }
-
-onMounted(() => {
-    recipesNotesListener()
-    console.log("load data")
-    console.log(recipes)
-    console.log('Recipe View Mounted');
+onMounted(async () => {
+    const user = await waitForAuth();
+    if(user){
+        console.log('User is signed in: ', user.email);
+        // await userStore.setUser(user.uid, user.email)        
+        await loadRecipes()
+    }
 })
 
 const deleteRecipe = async(recipeId) => {
@@ -97,6 +72,9 @@ const deleteRecipe = async(recipeId) => {
     }
     window.location.reload()
 }
+
+
+
 
 </script>
 

@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 
 import Dialog from 'primevue/dialog';
 import InputText from 'primevue/inputtext';
@@ -20,6 +20,12 @@ import {
 } from 'firebase/firestore'
 import { sanitizePlainText } from "@/security/sanitize";
 import { useUserStore } from "@/store/user";
+import { getFunctions, httpsCallable, connectFunctionsEmulator } from "firebase/functions";
+
+const functions = getFunctions();
+
+// emulator
+
 
 const userStore = useUserStore()
 const visible = ref(false);
@@ -31,28 +37,67 @@ const recipe = ref({
     prepTime: '',
 })
 
+const resetReciptValue = () => {
+    recipe.value.title = '';
+    recipe.value.author = '';
+    recipe.value.description = '';
+    recipe.value.prepTime = ''; 
+}
+
+
+onMounted(async() => {
+    if(!userStore.isAdmin){
+        return;
+    }
+    // console.log('role: '+userStore.role)
+})
 
 const saveRecipe = async() => {
-    if(userStore.role !== 'admin'){
-        return
-    }
-
     try{
-        const docRef = await addDoc(collection(db, 'recipe'), {
+        const payload = {
             title: sanitizePlainText(recipe.value.title, 50),
             author: sanitizePlainText(recipe.value.author, 20),
             description: sanitizePlainText(recipe.value.description, 250),
             prepTime: sanitizePlainText(recipe.value.prepTime, 20),
-            createdAt: serverTimestamp()
-        })
-        console.log('created: '+docRef.id)
+        }
 
-    }catch(error){
-        console.log(error)
+        const call = httpsCallable(functions, "saveRecipe");
+        const result = await call(payload);
+        console.log(result.data);
+        resetReciptValue();
+
+        emit('saved', newRecipe);
+        close();
+
+        visible.value = false;
+
+    }catch(e){
+        console.log('error:'+e)
     }
-    visible.value = false
-    window.location.reload()
-}
+};
+
+
+
+// const saveRecipe = async() => {
+//     if(userStore.role !== 'admin'){
+//         return
+//     }
+//     try{
+//         const docRef = await addDoc(collection(db, 'recipe'), {
+//             title: sanitizePlainText(recipe.value.title, 50),
+//             author: sanitizePlainText(recipe.value.author, 20),
+//             description: sanitizePlainText(recipe.value.description, 250),
+//             prepTime: sanitizePlainText(recipe.value.prepTime, 20),
+//             createdAt: serverTimestamp()
+//         })
+//         console.log('created: '+docRef.id)
+
+//     }catch(error){
+//         console.log(error)
+//     }
+//     visible.value = false
+//     window.location.reload()
+// }
 
 </script>
 

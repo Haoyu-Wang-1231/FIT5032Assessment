@@ -25,26 +25,8 @@ app.use(PrimeVue, {
   }
 })
 
-auth.onAuthStateChanged(async (user) => {
-  const userStore = useUserStore()
-  console.log('user:')
-  console.log(user)
-  
-  
 
-  if (user){
-    userStore.setUser(user.uid, user.email, null)
-    console.log(user.uid)
-    console.log(user.email)
-    await userStore.fetchUserRole()
-  } else{
-    userStore.clearUser()
-    
-  }
-
-})
-
-
+useUserStore().initAuthListener();
 
 app.mount('#app')
 // createApp(App).mount('#app')

@@ -1,9 +1,51 @@
 const { onCall, HttpsError } = require('firebase-functions/v2/https')
-const { getFirestore } = require('firebase-admin/firestore')
+const { getFirestore, FieldValue } = require('firebase-admin/firestore')
+const { sanitizePlainText } = require("./sanitize.js");
+const { logger } = require("firebase-functions");
 
 const db = getFirestore()
 
 
+
+
+
+const saveRecipe = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'Please sign in first.')
+  }
+
+  let isAdmin = 
+    request.auth.token?.role === 'admin' || 
+    request.auth.token?.admin === true;
+
+  if(!isAdmin) {
+    const roleSnap = await db.collection('users').doc(request.auth.uid).get();
+    isAdmin = roleSnap.exists && roleSnap.data()?.role === "admin";
+  }
+
+  if(!isAdmin) {
+    throw new HttpsError('permission-denied', 'You do not have permission to perform this action.')
+  }
+
+  const data = request.data || {};
+  const title = sanitizePlainText(data.title, 50);
+  const author = sanitizePlainText(data.author, 20);
+  const description = sanitizePlainText(data.description, 250);
+  const prepTime = sanitizePlainText(data.prepTime, 50);
+
+
+  const docRef = await db.collection("recipes").add({
+      title,
+      author,
+      description,
+      prepTime,
+      createdAt: FieldValue.serverTimestamp(),
+      createdBy: request.auth.uid,
+    });
+    logger.info(`Recipe created ${docRef.id} by ${request.auth.uid}`);
+
+    return { ok: true, id: docRef.id };
+})
 
 
 const getRecipes = onCall(async (request) => {
@@ -61,4 +103,4 @@ const getRecipes = onCall(async (request) => {
 //     console.log("recipesNotesListener", recipes)
 // }
 
-module.exports = { getRecipes }
+module.exports = { getRecipes, saveRecipe }

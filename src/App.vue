@@ -6,6 +6,10 @@ import { onMounted, ref } from 'vue'
 
 const users = ref(userJson)
 
+import { auth, db, functions } from '@/firebase'
+console.log('AUTH emulator?', auth.config?.emulator)
+console.log('FS emulator?', db._settings?.host)          
+console.log('FN emulator?', functions.emulatorOrigin)  
 
 
 </script>

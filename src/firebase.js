@@ -1,6 +1,8 @@
 import { initializeApp } from 'firebase/app'
-import { getAuth } from 'firebase/auth'
-import { getFirestore } from 'firebase/firestore'
+import { getAuth, connectAuthEmulator, browserLocalPersistence } from 'firebase/auth'
+import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore'
+import { getFunctions, connectFunctionsEmulator } from 'firebase/functions'
+
 
 const firebaseConfig = {
   apiKey: "AIzaSyDYt-kAsuR7QBHMdM8qFGij-lbTyU81gig",
@@ -12,6 +14,24 @@ const firebaseConfig = {
   measurementId: "G-BPQVWCKFTZ"
 };
 
-export const firebaseApp = initializeApp(firebaseConfig);
-export const auth = getAuth(firebaseApp)
-export const db = getFirestore(firebaseApp)
+const app = initializeApp(firebaseConfig);
+
+const auth = getAuth(app);
+auth.setPersistence(browserLocalPersistence);
+
+const db = getFirestore(app);
+const functions = getFunctions(app);
+
+const useEmu = import.meta.env.VITE_USE_EMULATORS === 'true'
+if (useEmu) {
+  const HOST = import.meta.env.VITE_EMU_AUTH_HOST || '127.0.0.1'
+  connectAuthEmulator(auth, `http://${HOST}:${import.meta.env.VITE_EMU_AUTH_PORT || 9099}`, { disableWarnings: true })
+  connectFirestoreEmulator(db, HOST, Number(import.meta.env.VITE_EMU_FIRESTORE_PORT || 8080))
+  connectFunctionsEmulator(functions, HOST, Number(import.meta.env.VITE_EMU_FUNCTIONS_PORT || 5001))
+}
+
+
+// export const firebaseApp = initializeApp(firebaseConfig);
+// export const auth = getAuth(firebaseApp)
+// export const db = getFirestore(firebaseApp)
+export {app as firebaseApp, auth, db, functions}

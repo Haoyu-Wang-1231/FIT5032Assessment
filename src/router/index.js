@@ -46,27 +46,8 @@ const router = createRouter({
   routes: routes,
 })
 
-router.beforeEach(async(to) => {
-  const userStore = useUserStore()
-
-  if(to.name === 'Login' || to.name ==='Register'){
-    await auth.signOut()
-    userStore.clearUser()
-    // window.location.reload()
-    return true
-  }
-
-  // if(!userStore.uid || !userStore.email || !userStore.role){
-  //   await auth.signOut()
-  //   userStore.clearUser()
-  //   return{ name: 'Login', replace: true}
-  // }
-
-  // if(to.name ==='Login'){
-  //   return {name: 'Home', replace: true}
-  // }
-
-
-});
+// router.beforeEach(async(to) => {
+//   const userStore = useUserStore()
+// });
 
 export default router

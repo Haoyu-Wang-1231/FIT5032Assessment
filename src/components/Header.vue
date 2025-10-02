@@ -45,7 +45,7 @@ const links = computed(() => {
 const handleActive = async (link) => {
     if (link.name === 'Log out') {
         try {
-            await auth.signOut()
+            userStore.logout();
         } catch (err) {
             console.error('Error logging out:', err)
         }

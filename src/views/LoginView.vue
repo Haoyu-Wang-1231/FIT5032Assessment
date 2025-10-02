@@ -72,7 +72,7 @@ const submitLogin = async() => {
 
 async function justLogin () {
     try{
-        const userCredential = await signInWithEmailAndPassword(auth, '123456789@qq.com', 'Harland123#')
+        const userCredential = await signInWithEmailAndPassword(auth, '1658129453@qq.com', 'Harland123#')
         
         await getUser(userCredential.user.email);
         // userStore.email = auth.currentUser.email
@@ -94,7 +94,7 @@ async function justLogin () {
 
 async function justAdmin () {
     try{
-        const userCredential = await signInWithEmailAndPassword(auth, 'admin@gmail.com', 'Harland123#')
+        const userCredential = await signInWithEmailAndPassword(auth, 'admin@qq.com', 'Harland123#')
         
         await getUser(userCredential.user.email);
         // userStore.setUser(auth.currentUser.uid, auth.currentUser.email, notes.value[0].role)

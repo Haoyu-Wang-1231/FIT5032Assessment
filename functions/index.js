@@ -34,7 +34,7 @@ exports.hello = onRequest((req, res) => {
 exports.test = functions.auth.user().onCreate(async (input) => {
   logger.info('New user created:', { email: input.email, uid: input.uid });
   await adminAuth.setCustomUserClaims(input.uid, { role: 'viewer' });
-  await db.collection('user_role').doc(input.uid).set({
+  await db.collection('users').doc(input.uid).set({
     email: input.email,
     role: 'viewer',
     createdAt: new Date(),

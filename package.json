@@ -7,6 +7,7 @@
     "node": "^20.19.0 || >=22.12.0"
   },
   "scripts": {
+    "emu": "firebase emulators:start --import=./.emulator-data --export-on-exit",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
@@ -34,5 +35,10 @@
     "prettier": "3.6.2",
     "vite": "^7.0.6",
     "vite-plugin-vue-devtools": "^8.0.0"
+  },
+   "emulators": {
+    "exportOnExit": "./.emulator-data",
+    "hub": { "port": 4400 },
+    "ui": { "enabled": true }
   }
 }

@@ -17,4 +17,3 @@ export function sanitizePlainText(str = '', maxLen = 250) {
   } 
   return output;
 }
-
