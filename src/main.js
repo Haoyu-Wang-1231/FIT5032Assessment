@@ -12,6 +12,7 @@ import Aura from '@primevue/themes/aura'
 import { createPinia } from 'pinia'
 import { useUserStore } from './store/user'
 
+
 const app = createApp(App)
 
 const pinia = createPinia()
@@ -28,5 +29,5 @@ app.use(PrimeVue, {
 
 useUserStore().initAuthListener();
 
-app.mount('#app')
+app.mount('#app');
 // createApp(App).mount('#app')

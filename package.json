@@ -15,6 +15,8 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@googlemaps/js-api-loader": "^2.0.1",
+    "@googlemaps/markerclusterer": "^2.6.2",
     "@primevue/themes": "^4.3.9",
     "axios": "^1.12.2",
     "bootstrap": "^5.3.7",
@@ -23,7 +25,9 @@
     "pinia-plugin-persistedstate": "^4.5.0",
     "primevue": "^4.3.9",
     "vue": "^3.5.18",
-    "vue-router": "^4.5.1"
+    "vue-router": "^4.5.1",
+    "vue3-geolocation": "^1.0.0",
+    "vue3-google-map": "^0.24.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.31.0",
@@ -36,9 +40,13 @@
     "vite": "^7.0.6",
     "vite-plugin-vue-devtools": "^8.0.0"
   },
-   "emulators": {
+  "emulators": {
     "exportOnExit": "./.emulator-data",
-    "hub": { "port": 4400 },
-    "ui": { "enabled": true }
+    "hub": {
+      "port": 4400
+    },
+    "ui": {
+      "enabled": true
+    }
   }
 }

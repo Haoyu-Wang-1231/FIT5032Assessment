@@ -22,7 +22,7 @@ const adminAuth = getAuth();
 
 
 Object.assign(exports, require("./src/recipes"));
-
+Object.assign(exports, require("./src/events"));
 
 exports.hello = onRequest((req, res) => {
   logger.info("Hello logs!", { structuredData: true });

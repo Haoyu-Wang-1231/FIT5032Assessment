@@ -5,6 +5,8 @@ import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
 import RegisterView from '../views/RegisterView.vue'
 import RecipeView from '@/views/RecipeView.vue'
+import MapView from '@/views/MapView.vue'
+import EventsView from '@/views/eventsView.vue'
 import { useUserStore } from '@/store/user'
 import { auth } from '@/firebase'
 
@@ -38,6 +40,18 @@ const routes = [
     name: 'Login',
     component: LoginView,
     meta: {navkey: "auth"}
+  },
+  {
+    path: '/map',
+    name: 'Map',
+    component: MapView,
+    meta: {navkey: "default"}
+  },
+  {
+    path: '/events',
+    name: 'Events',
+    component: EventsView,
+    meta: {navkey: "default"}
   }
 ]
 

@@ -6,7 +6,7 @@
             General Nutrition Educator
         </div>
 
-        <div class="col-xxl-3 col-lg-3 col-md-3 col-sm-4 col-12 d-flex justify-content-around flex-column flex-sm-row">
+        <div class="col-xxl-5 col-lg-5 col-md-6 col-sm-7 col-12 d-flex justify-content-around flex-column flex-sm-row">
             <!-- <routerLink to="/home">Home</routerLink>
             <routerLink to="/recipe">Recipe</routerLink>
 

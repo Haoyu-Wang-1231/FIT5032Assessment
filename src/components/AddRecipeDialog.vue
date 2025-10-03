@@ -5,22 +5,12 @@ import Dialog from 'primevue/dialog';
 import InputText from 'primevue/inputtext';
 import { auth, db } from '@/firebase';
 import Select from 'primevue/select';
-import {
-    collection,
-    addDoc,
-    setDoc,
-    onSnapshot,
-    query,
-    serverTimestamp,
-    where,
-    getDocs,
-    deleteDoc,
-    doc,
-    getDoc,
-} from 'firebase/firestore'
+
 import { sanitizePlainText } from "@/security/sanitize";
 import { useUserStore } from "@/store/user";
 import { getFunctions, httpsCallable, connectFunctionsEmulator } from "firebase/functions";
+
+const emit = defineEmits(['recipeSaved']);
 
 const functions = getFunctions();
 
@@ -66,11 +56,8 @@ const saveRecipe = async() => {
         console.log(result.data);
         resetReciptValue();
 
-        emit('saved', newRecipe);
-        close();
-
         visible.value = false;
-
+        emit('recipeSaved');
     }catch(e){
         console.log('error:'+e)
     }
