@@ -39,7 +39,6 @@ onMounted(async() => {
     if(!userStore.isAdmin){
         return;
     }
-    // console.log('role: '+userStore.role)
 })
 
 const saveRecipe = async() => {
@@ -62,30 +61,6 @@ const saveRecipe = async() => {
         console.log('error:'+e)
     }
 };
-
-
-
-// const saveRecipe = async() => {
-//     if(userStore.role !== 'admin'){
-//         return
-//     }
-//     try{
-//         const docRef = await addDoc(collection(db, 'recipe'), {
-//             title: sanitizePlainText(recipe.value.title, 50),
-//             author: sanitizePlainText(recipe.value.author, 20),
-//             description: sanitizePlainText(recipe.value.description, 250),
-//             prepTime: sanitizePlainText(recipe.value.prepTime, 20),
-//             createdAt: serverTimestamp()
-//         })
-//         console.log('created: '+docRef.id)
-
-//     }catch(error){
-//         console.log(error)
-//     }
-//     visible.value = false
-//     window.location.reload()
-// }
-
 </script>
 
 <template>

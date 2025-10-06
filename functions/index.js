@@ -23,6 +23,8 @@ const adminAuth = getAuth();
 
 Object.assign(exports, require("./src/recipes"));
 Object.assign(exports, require("./src/events"));
+Object.assign(exports, require("./src/user"));
+
 
 exports.hello = onRequest((req, res) => {
   logger.info("Hello logs!", { structuredData: true });
@@ -37,6 +39,7 @@ exports.test = functions.auth.user().onCreate(async (input) => {
   await db.collection('users').doc(input.uid).set({
     email: input.email,
     role: 'viewer',
+    username: "temp",
     createdAt: new Date(),
   });
 });

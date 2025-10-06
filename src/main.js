@@ -26,7 +26,6 @@ app.use(PrimeVue, {
   }
 })
 
-
 useUserStore().initAuthListener();
 
 app.mount('#app');

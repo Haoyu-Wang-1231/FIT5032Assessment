@@ -11,11 +11,13 @@ export const useUserStore = defineStore('user', () => {
     const email = ref(null);
     const role = ref(null);
     const claims = ref({});
-
+    const username = ref(null);
     const isSignedIn = computed(() => !!uid.value)
     const isAdmin = computed(() => role.value === 'admin')
 
-
+    function setUserName(input){
+        username.value = input;
+    }
 
     async function refreshPermissions(force = false) {
         if (!auth.currentUser){
