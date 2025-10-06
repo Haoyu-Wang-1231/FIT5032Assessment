@@ -1,22 +1,17 @@
 <script setup>
-import { GoogleMap, CustomMarker } from 'vue3-google-map'
-import { onMounted, onBeforeUnmount, computed ,ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
+import { MapboxMap, MapboxMarker, MapboxPopup } from '@studiometa/vue-mapbox-gl'
+import 'mapbox-gl/dist/mapbox-gl.css'
 import { onAuthStateChanged } from 'firebase/auth'
 import { httpsCallable } from 'firebase/functions'
-import EventViewCard from '@/components/EventViewCard.vue'
+import EventMapCard from '@/components/EventMapCard.vue'
 
 import { auth, functions } from '@/firebase'
 
-const API = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
+const token = import.meta.env.VITE_MAPBOX_MAPS_API_KEY
 
-const center = ref({ lat: -37.8136, lng: 144.9631 }) // Melbourne
+const mapCenter = ref([144.9631, -37.8136])
 const events = ref([])
-
-const openId = ref(null)
-const toggle = (id) => (openId.value = openId.value === id ? null : id)
-const onEsc = (e) => {
-  if (e.key === 'Escape') openId.value = null
-}
 
 function waitforAuth() {
   return new Promise((resolve) => {
@@ -40,10 +35,8 @@ async function loadEvents() {
     console.log(e)
   }
 }
-onBeforeUnmount(() => window.removeEventListener('keydown', onEsc))
 
 onMounted(async () => {
-  window.addEventListener('keydown', onEsc)
   const user = await waitforAuth()
   if (user) {
     // console.log('User is signed in: ', user.email)
@@ -53,94 +46,63 @@ onMounted(async () => {
   }
 })
 
-
-
-
-const resetCenter = (newLat, newLng) => {
-  center.value = { lat: newLat, lng: newLng }
+function onMapCreated(map) {
+  map.addControl(
+    new mapboxgl.GeolocateControl({
+      positionOptions: {
+        enableHighAccuracy: true,
+      },
+      trackUserLocation: true,
+      showUserHeading: true,
+    }),
+  )
 }
 </script>
+<!-- const center = ref({ lat: -37.8136, lng: 144.9631 }) // Melbourne -->
 
 <template>
   <div class="container">
-    <div>Event Map</div>
-    <div class="map-container">
-      <GoogleMap
-        :api-key="API"
-        :center="center"
-        :zoom="13"
-        map-type-id="roadmap"
-        style="width: 100%; height: 600px"
-        @click="openId = null"
+    <div class="map-container pt-4">
+      <MapboxMap
+        style="height: 500px"
+        :access-token="token"
+        mapStyle="mapbox://styles/mapbox/streets-v12"
+        :center="mapCenter"
+        :zoom="12"
       >
-        <CustomMarker
-          v-for="ev in events"
-          :key="ev.id"
-          :options="{
-            position: { lat: Number(ev.lat), lng: Number(ev.lng) },
-            zIndex: openId === ev.id ? 999 : 1,
-          }"
-        >
-          <div class="marker-wrap" @click.stop="toggle(ev.id)">
-            <div class="marker-pin"></div>
-            <transition name="fade-scale">
-              <div v-if="openId === ev.id" class="marker-card" @click.stop>
-                <EventViewCard :event="ev" />
-              </div>
-            </transition>
-          </div>
-        </CustomMarker>
-      </GoogleMap>
+        <MapboxMarker v-for="event in events" :lng-lat="[event.lng, event.lat]">
+          <template #popup>
+            <EventMapCard :event="event" />
+          </template>
+        </MapboxMarker>
+      </MapboxMap>
     </div>
   </div>
 </template>
 
 <style scoped>
-.marker-wrap {
+:deep(.mapboxgl-popup-content) {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
   position: relative;
+  width: 280px;
 }
 
-.marker-pin {
-  position: relative;
-  width: 18px;
-  height: 18px;
-  background: #ff0000;
-  border: 2px solid #fff;
-  border-radius: 9999px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
-  transform: translate(-50%, -100%);
+:deep(.mapboxgl-popup-tip) {
+  display: none !important;
 }
-.marker-pin::after {
-  content: '';
+
+:deep(.mapboxgl-popup-close-button) {
   position: absolute;
-  left: 50%;
-  bottom: -8px;
-  transform: translateX(-50%);
-  width: 0;
-  height: 0;
-  border-left: 6px solid transparent;
-  border-right: 6px solid transparent;
-  border-top: 8px solid #ff0000;
-}
-
-.marker-card {
-  position: absolute;
-  bottom: 28px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
-}
-
-.fade-scale-enter-active,
-.fade-scale-leave-active {
-  transition: all 0.15s ease;
-}
-.fade-scale-enter-from {
-  opacity: 0;
-  transform: translate(-50%, 6px) scale(0.98);
-}
-.fade-scale-leave-to {
-  opacity: 0;
-  transform: translate(-50%, 6px) scale(0.98);
+  top: 10px !important;           
+  right: 5px !important;
+  color: #94a3b8;                  
+  line-height: 1;
+  font-size: 30px !important;
+  border-radius: 999px;
+  background: transparent;        
 }
 </style>

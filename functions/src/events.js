@@ -9,6 +9,29 @@ function hasValidLatLng(lat, lng) {
   return lat !== null && lng !== null && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180
 }
 
+const getEventById = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'Please sign in first.')
+  }
+
+  const eventId = request.data?.id ?? request.data?.eventId
+  if (!eventId) {
+    throw new HttpsError('Unexisted', 'please check event id')
+  }
+
+  try {
+    const docRef = db.collection('events').doc(eventId)
+    const snap = await docRef.get()
+    if (!snap.exists) {
+      throw new HttpsError('not-found', `event "${eventId}" not found.`)
+    }
+
+    return { exists: true, event: snap.data() }
+  } catch (error) {
+    console.log(error)
+  }
+})
+
 const getMapEvents = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError('unauthenticated', 'Please sign in first.')
@@ -23,14 +46,12 @@ const getMapEvents = onCall(async (request) => {
       const lat = data.lat
       const lng = data.lng
 
-      console.warn('[getMapEvents] drop invalid lat/lng:', {
+      if (!hasValidLatLng(lat, lng)) {
+        console.warn('[getMapEvents] drop invalid lat/lng:', {
           id: doc.id,
           lat: data.lat,
           lng: data.lng,
         })
-
-      if (!hasValidLatLng(lat, lng)) {
-        
         continue
       }
 
@@ -65,4 +86,4 @@ const getEvents = onCall(async (request) => {
   }
 })
 
-module.exports = { getEvents, getMapEvents }
+module.exports = { getEvents, getMapEvents, getEventById }

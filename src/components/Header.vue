@@ -47,8 +47,10 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { RouterLink, routerViewLocationKey, useRoute, useRouter } from 'vue-router'
 import { navConfig } from '@/config/nav'
-import { auth, db } from '@/firebase'
+import { auth, db, functions } from '@/firebase'
 import { useUserStore } from '@/store/user'
+import { onAuthStateChanged } from 'firebase/auth'
+import { httpsCallable } from 'firebase/functions'
 
 import UserDropMenu from './dropMenu/UserDropMenu.vue'
 import EventDropMenu from './dropMenu/EventDropMenu.vue'
@@ -99,6 +101,15 @@ const handleActive = async (link) => {
     }
   }
 }
+async function waitForAuth() {
+  return new Promise((resolve) => {
+    const off = onAuthStateChanged(auth, (u) => {
+      off()
+      resolve(u)
+    })
+  })
+}
+
 
 async function loadUser() {
   try {
@@ -117,7 +128,7 @@ async function loadUser() {
 }
 
 onMounted(async () => {
-  const user = await waitforAuth()
+  const user = await waitForAuth()
   if (user) {
     // await userStore.setUser(user.uid, user.email)
     await loadUser()

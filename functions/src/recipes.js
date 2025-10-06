@@ -72,7 +72,7 @@ const saveRecipe = onCall(async (request) => {
   return { ok: true, id: docRef.id }
 })
 
-const getRecipeByID = onCall(async (request) => {
+const getRecipeById = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError('unauthenticated', 'Please sign in first.')
   }
@@ -168,4 +168,4 @@ const getRecipes = onCall(async (request) => {
   }
 })
 
-module.exports = { getRecipes, saveRecipe, deleteRecipe }
+module.exports = { getRecipes, saveRecipe, deleteRecipe, getRecipeById }

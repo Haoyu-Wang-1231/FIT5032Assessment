@@ -8,6 +8,7 @@ import RecipeView from '@/views/RecipeView.vue'
 import MapView from '@/views/event/MapView.vue'
 import EventsView from '@/views/event/EventsView.vue'
 import ProfileView from '@/views/ProfileView.vue'
+import EventDetailView from '@/views/event/EventDetailView.vue'
 import { useUserStore } from '@/store/user'
 import { auth } from '@/firebase'
 const EmptyRouterView = { render: () => h('router-view') }
@@ -66,6 +67,7 @@ const routes = [
     path: '/events',
     meta: { navkey: 'viewer', hidden: true },
     children: [
+      { path: 'eid=:id', name: 'EventDetails', props: true, component: EventDetailView },
       { path: 'list', name: 'EventList', component: EventsView },
       { path: 'map', name: 'EventMap', component: MapView },
     ],
