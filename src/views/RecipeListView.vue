@@ -60,21 +60,6 @@ const deleteRecipe = async (recipeId) => {
   }
   reloadReciepes()
 }
-
-// const deleteRecipe = async(recipeId) => {
-//     if(userStore.role !== 'admin'){
-//         return
-//     }
-
-//     try{
-//         // console.log(recipeId)
-//         await deleteDoc(doc(db, 'recipe', recipeId))
-//         console.log("Delete: " +recipeId)
-//     }catch(error){
-//         console.log(error)
-//     }
-//     window.location.reload()
-// }
 </script>
 
 <template>

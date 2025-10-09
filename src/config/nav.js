@@ -4,7 +4,8 @@ export const navConfig = {
     {
       name: 'Events',
       children: [{ name: 'Map', to: '/events/map' }],
-    },{ name: 'Login', to: '/login' },
+    },
+    { name: 'Login', to: '/login' },
     { name: 'Register', to: '/register' },
   ],
   viewer: [
@@ -23,8 +24,30 @@ export const navConfig = {
         { name: 'Map', to: '/events/map' },
       ],
     },
-    { name: 'Log out', to: '/login' },
+    // { name: 'Log out', to: '/login' },
   ],
+  admin: [
+    {
+      name: 'User',
+      children: [
+        { name: 'profile', to: '/user/profile' },
+        // manage viewers,
+
+        { name: 'logout', to: '/login' },
+      ],
+    },
+    { name: 'Recipes', to: '/recipe' },
+    {
+      name: 'Events',
+      children: [
+        { name: 'List', to: '/events/list' },
+        // event manager
+        { name: 'Map', to: '/events/map' },
+      ],
+    },
+    // { name: 'Log out', to: '/login' },
+  ],
+
   auth: [
     { name: 'Login', to: '/login' },
     { name: 'Register', to: '/register' },

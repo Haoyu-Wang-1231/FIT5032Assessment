@@ -39,9 +39,7 @@ async function loadEvents() {
 onMounted(async () => {
   const user = await waitforAuth()
   if (user) {
-    // console.log('User is signed in: ', user.email)
-    // await userStore.setUser(user.uid, user.email)
-    // await loadRecipes()
+
     await loadEvents()
   }
 })

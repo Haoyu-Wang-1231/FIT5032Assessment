@@ -35,7 +35,7 @@ const comment = ref({
     description: ''
 })
 
-
+// Todo: need to switch to functions
 const submitComment = async() => {
     if (!comment.value.rating || !comment.value.description){
         console.log('comment not complete')
@@ -45,7 +45,7 @@ const submitComment = async() => {
         console.log('no user id')
         return
     }
-    const commentRef = doc(db, 'recipe', props.recipeId, 'comment', userStore.uid)
+    const commentRef = doc(db, 'recipe', props.recipeId, 'comments', userStore.uid)
     try{
         await setDoc(commentRef, {
             userId: userStore.uid,
