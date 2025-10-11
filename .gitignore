@@ -30,4 +30,5 @@ coverage
 *.tsbuildinfo
 
 .emulator-data/
+/functions/.runtimeconfig.json
 .env.local
