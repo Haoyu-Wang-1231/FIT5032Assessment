@@ -9,8 +9,6 @@ console.log('FS emulator?', db._settings?.host)
 console.log('FN emulator?', functions.emulatorOrigin)  
 
 
-
-
 </script>
 
 <template>

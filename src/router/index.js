@@ -2,16 +2,16 @@ import { createRouter, createWebHistory } from 'vue-router'
 // import HomeView from '../views/HomeView.vue'
 // import AboutView from '../views/AboutView.vue'
 import HomeView from '../views/HomeView.vue'
-import LoginView from '../views/LoginView.vue'
-import RegisterView from '../views/RegisterView.vue'
-import RecipeView from '@/views/RecipeListView.vue'
+import LoginView from '../views/authentication/LoginView.vue'
+import RegisterView from '../views/authentication/RegisterView.vue'
+import RecipeListView from '@/views/recipe/RecipeListView.vue'
 import MapView from '@/views/event/MapView.vue'
-import EventsView from '@/views/event/EventsView.vue'
+import EventsView from '@/views/event/EventListView.vue'
 import ProfileView from '@/views/ProfileView.vue'
 import EventDetailView from '@/views/event/EventDetailView.vue'
+import RecipeDetailView from '@/views/recipe/RecipeDetailView.vue'
 import { useUserStore } from '@/store/user'
 import { auth } from '@/firebase'
-const EmptyRouterView = { render: () => h('router-view') }
 
 const routes = [
   {
@@ -52,10 +52,13 @@ const routes = [
   },
 
   {
-    path: '/recipe',
-    name: 'Recipe',
-    component: RecipeView,
+    path: '/recipes',
+    name: 'Recipes',
     meta: { navkey: 'viewer' },
+    children: [
+      { path: 'rid=:id', name: 'RecipeDetail', props: true, component: RecipeDetailView },
+      { path: 'list', name: 'RecipeList', component: RecipeListView },
+    ],
   },
   {
     path: '/map',
@@ -79,8 +82,16 @@ const router = createRouter({
   routes: routes,
 })
 
-// router.beforeEach(async(to) => {
-//   const userStore = useUserStore()
-// });
+router.beforeEach(async (to) => {
+  const userStore = useUserStore()
+
+  // const authLink = ['Login', 'Register', 'Home']
+
+  // console.log('to: ' + to.name)
+  // if (!authLink.includes(to.name) && userStore.uid) {
+
+  //   console.log(userStore.uid)
+  // }
+})
 
 export default router

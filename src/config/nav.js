@@ -16,7 +16,7 @@ export const navConfig = {
         { name: 'logout', to: '/login' },
       ],
     },
-    { name: 'Recipes', to: '/recipe' },
+    { name: 'Recipes', to: '/recipes' },
     {
       name: 'Events',
       children: [
@@ -36,7 +36,7 @@ export const navConfig = {
         { name: 'logout', to: '/login' },
       ],
     },
-    { name: 'Recipes', to: '/recipe' },
+    { name: 'Recipes', to: '/recipes' },
     {
       name: 'Events',
       children: [

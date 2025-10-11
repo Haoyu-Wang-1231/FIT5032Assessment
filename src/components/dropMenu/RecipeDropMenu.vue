@@ -1,6 +1,4 @@
 <template>
-  <!-- @mouseleave="openWithDelay(false)" -->
-
   <div class="hover-card" @mouseenter="openWithDelay(true)" @mouseleave="openWithDelay(false)">
     <slot name="trigger">
       <!-- <img class="avatar" src="/avatar.png" alt="avatar" /> -->
@@ -8,12 +6,13 @@
 
     <Transition name="fade-pop">
       <div v-if="open" class="menu" role="menu" :aria-expanded="open">
-        <div class="header">
+        <!-- <div class="header">
           <div class="title">{{ userStore.username }}</div>
-        </div>
+        </div> -->
         <ul class="list">
-          <li @click="emit('goProfile')">Profile</li>
-          <li @click="emit('logout')">Log out</li>
+          <li @click="emit('goRecipeList')">Recipe List</li>
+          <li @click="emit('goFavour')">Favour</li>
+          <li v-if="userStore.role=== 'admin'">Recipe Manager</li>
         </ul>
       </div>
     </Transition>
@@ -23,7 +22,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useUserStore } from '@/store/user'
-const emit = defineEmits(['logout', 'goProfile'])
+const emit = defineEmits(['goRecipeList', 'goFavour'])
 
 const userStore = useUserStore()
 
@@ -79,14 +78,14 @@ function openWithDelay(show) {
   list-style: none;
 }
 .list li {
-  display: flex;                 /* ensures vertical centering */
-  align-items: center;           /* centers text vertically */
-  justify-content: flex-start;   /* text starts at left edge */
-  min-height: 40px;              /* consistent clickable area */
-  padding: 0 14px;               /* horizontal padding */
+  display: flex; /* ensures vertical centering */
+  align-items: center; /* centers text vertically */
+  justify-content: flex-start; /* text starts at left edge */
+  min-height: 40px; /* consistent clickable area */
+  padding: 0 14px; /* horizontal padding */
   border-radius: 6px;
   cursor: pointer;
-  line-height: 1;                /* remove extra line spacing */
+  line-height: 1; /* remove extra line spacing */
   font-size: 15px;
 }
 .list li:hover {

@@ -5,7 +5,6 @@
     <div class="col-xxl-3 col-lg-3 col-md-5 col-sm-5 col-12" @click="toHome">
       General Nutrition Educator
     </div>
-
     <div
       class="col-xxl-5 col-lg-5 col-md-6 col-sm-7 col-12 d-flex justify-content-around flex-column flex-sm-row"
     >
@@ -19,6 +18,18 @@
             <span class="user-trigger">{{ link.name }}</span>
           </template>
         </UserDropMenu>
+
+
+
+        <RecipeDropMenu
+          v-else-if="link.name === 'Recipes'"
+          @goRecipeList="goRecipeList"
+          @goFavour=""
+        >
+          <template #trigger>
+            <span class="user-trigger">{{ link.name }}</span>
+          </template>
+        </RecipeDropMenu>
 
         <EventDropMenu
           v-else-if="link.name === 'Events' && link.children"
@@ -54,6 +65,7 @@ import { httpsCallable } from 'firebase/functions'
 
 import UserDropMenu from './dropMenu/UserDropMenu.vue'
 import EventDropMenu from './dropMenu/EventDropMenu.vue'
+import RecipeDropMenu from './dropMenu/RecipeDropMenu.vue'
 
 const route = useRoute()
 const userStore = useUserStore()
@@ -76,6 +88,15 @@ const goProfile = () => {
   // router.push({ name: 'UserProfile', params: { uid: userStore.id } })
 }
 
+
+const goRecipeList = ()=>{
+  router.push({name: 'RecipeList' })
+}
+
+const goFavour = ()=>{
+
+}
+
 const goEventsList = () => {
   router.push({name: 'EventList'})
 }
@@ -86,7 +107,7 @@ const goEventsMap = () => {
 const logout = async () => {
   try {
     await userStore.logout()
-    router.replace('/home')
+    router.replace('/login')
   } catch (err) {
     console.error('Error logging out:', err)
   }
@@ -114,7 +135,7 @@ async function waitForAuth() {
 async function loadUser() {
   try {
     const call = httpsCallable(functions, 'getUserInfo')
-    console.log('uid: ' + userStore.id)
+    // console.log('uid: ' + userStore.id)
     const payload = { userId: userStore.id }
 
     const result = await call(payload)
@@ -132,6 +153,7 @@ onMounted(async () => {
   if (user) {
     // await userStore.setUser(user.uid, user.email)
     await loadUser()
+    
   }
 })
 </script>

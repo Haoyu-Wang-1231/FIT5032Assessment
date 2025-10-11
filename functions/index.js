@@ -6,8 +6,7 @@ const { initializeApp } = require("firebase-admin/app");
 const { getFirestore } = require("firebase-admin/firestore");
 const { getAuth } = require("firebase-admin/auth");
 
-setGlobalOptions({ maxInstances: 10 });
-
+setGlobalOptions({ maxInstances: 10, region: 'australia-southeast1'});
 
 if (process.env.FUNCTIONS_EMULATOR) {
   process.env.FIRESTORE_EMULATOR_HOST = "localhost:8080";
@@ -33,14 +32,4 @@ exports.hello = onRequest((req, res) => {
 
 
 // bugs due to user
-exports.test = functions.auth.user().onCreate(async (input) => {
-  logger.info('New user created:', { email: input.email, uid: input.uid });
-  await adminAuth.setCustomUserClaims(input.uid, { role: 'viewer' });
-  await db.collection('users').doc(input.uid).set({
-    email: input.email,
-    role: 'viewer',
-    username: "temp",
-    createdAt: new Date(),
-  });
-});
 // {"role": "admin"}

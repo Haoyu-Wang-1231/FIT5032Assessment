@@ -44,17 +44,7 @@ onMounted(async () => {
   }
 })
 
-function onMapCreated(map) {
-  map.addControl(
-    new mapboxgl.GeolocateControl({
-      positionOptions: {
-        enableHighAccuracy: true,
-      },
-      trackUserLocation: true,
-      showUserHeading: true,
-    }),
-  )
-}
+
 </script>
 <!-- const center = ref({ lat: -37.8136, lng: 144.9631 }) // Melbourne -->
 

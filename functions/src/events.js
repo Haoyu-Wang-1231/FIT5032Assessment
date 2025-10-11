@@ -9,6 +9,52 @@ function hasValidLatLng(lat, lng) {
   return lat !== null && lng !== null && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180
 }
 
+const getEventListByTitle = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'Please sign in first.')
+  }
+
+  const searchWord = request.data?.searchWord
+  const searchType = request.data?.type
+
+  if (!searchWord) {
+    try {
+      const snap = await db.collection('events').get()
+      const rows = await Promise.all(
+        snap.docs.map(async (doc) => {
+          return {
+            id: doc.id,
+            ...doc.data(),
+          }
+        }),
+      )
+      return rows
+    } catch (error) {
+      throw new HttpsError('internal', error.message)
+    }
+  } else {
+    try {
+      const snapshot = await db
+        .collection('events')
+        .where(searchType, '>=', searchWord)
+        .where(searchType, '<=', searchWord + '\uf8ff')
+        .get()
+
+      if (snapshot.empty) {
+        return []
+      }
+
+      const records = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }))
+      return records
+    } catch (error) {
+      console.log(error)
+    }
+  }
+})
+
 const getEventListByIds = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError('unauthenticated', 'Please sign in first.')
@@ -28,7 +74,7 @@ const getEventListByIds = onCall(async (request) => {
       return { id: snap.id, ...snap.data() }
     })
 
-    return {events: documents}
+    return { events: documents }
   } catch (error) {
     console.log(error)
   }
@@ -111,4 +157,4 @@ const getEvents = onCall(async (request) => {
   }
 })
 
-module.exports = { getEvents, getMapEvents, getEventById, getEventListByIds}
+module.exports = { getEvents, getMapEvents, getEventById, getEventListByIds, getEventListByTitle }

@@ -7,43 +7,43 @@ import {
   sendEmailVerification,
   signInWithEmailAndPassword,
 } from 'firebase/auth'
-import { auth, db } from '@/firebase'
+import { auth, db, functions } from '@/firebase'
 
-import {
-  collection,
-  addDoc,
-  onSnapshot,
-  query,
-  serverTimestamp,
-  where,
-  getDocs,
-  deleteDoc,
-  doc,
-} from 'firebase/firestore'
+
+import { httpsCallable } from 'firebase/functions'
 
 const notes = ref([])
-const userCollection = collection(db, 'user_role')
+const errors = ref('')
 
-// userStore.email
-// userStore.role
 
 const formData = ref({
   email: '',
   password: '',
 })
 
-async function getUser(email) {
-  const q = query(userCollection, where('email', '==', email))
-  const noteData = []
-  const querySnapshot = await getDocs(q)
-  querySnapshot.docs.forEach((doc) => {
-    noteData.push(doc.data())
-    // console.log(doc.id, " => ", doc.data());
-  })
-  notes.value = noteData
+async function getUser(uid) {
+  // console.log("uid:"+uid)
+  try{
+    const call = httpsCallable(functions, 'getUserInfo')
+    const result = await call(uid)
+    if(!result.data){
+      
+    }
+  }catch(err){
+    console.log(err)
+  }
+
+
+  // const q = query(userCollection, where('email', '==', email))
+  // const noteData = []
+  // const querySnapshot = await getDocs(q)
+  // querySnapshot.docs.forEach((doc) => {
+  //   noteData.push(doc.data())
+  //   // console.log(doc.id, " => ", doc.data());
+  // })
+  // notes.value = noteData
 }
 
-const errors = ref('')
 
 function registering() {
   router.push({ name: 'Register' })
@@ -57,7 +57,7 @@ const submitLogin = async () => {
       formData.value.password,
     )
 
-    await getUser(userCredential.user.email)
+    // await getUser(userCredential.user.email)
     // userStore.setUser(auth.currentUser.uid, auth.currentUser.email, notes.value[0].role)
   } catch (e) {
     errors.value = e.message
@@ -75,15 +75,13 @@ const submitLogin = async () => {
 
 async function justLogin() {
   try {
-    const userCredential = await signInWithEmailAndPassword(
+    await signInWithEmailAndPassword(
       auth,
       '1658129453@qq.com',
       'Harland123#',
     )
+    // console.log("uid:"+userCredential.uid)
 
-    await getUser(userCredential.user.email)
-    // userStore.email = auth.currentUser.email
-    // userStore.role = notes.value[0].role
   } catch (e) {
     errors.value = e.message
     console.log('Login failed: ', e)
@@ -102,7 +100,7 @@ async function justAdmin() {
   try {
     const userCredential = await signInWithEmailAndPassword(auth, 'admin@qq.com', 'Harland123#')
 
-    await getUser(userCredential.user.email)
+    // await getUser(userCredential.user.email)
     // userStore.setUser(auth.currentUser.uid, auth.currentUser.email, notes.value[0].role)
   } catch (e) {
     errors.value = e.message

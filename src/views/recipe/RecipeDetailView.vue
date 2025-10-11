@@ -1,0 +1,225 @@
+<template>
+  <div class="container d-flex justify-content-center" style="padding-top: 3%">
+    <div class="col-xxl-12 col-lg-12 col-md-12 col-sm-12 col-12 background">
+      <div class="title d-flex justify-content-around pt-4">
+        <div><button class="btn btn-secondary" @click="goBack">Back</button></div>
+
+        <h1>{{ recipe.title }}</h1>
+        <div>
+          <button
+            v-if="!favourState"
+            class="btn btn-primary"
+            style="width: 120px"
+            @click="favourStateChange(true)"
+          >
+            Favour
+          </button>
+          <button
+            v-else
+            class="btn btn-secondary"
+            style="width: 120px"
+            @click="favourStateChange(true)"
+          >
+            Unfavour
+          </button>
+          <!-- <button v-else class="btn btn-secondary" style="width: 120px" @click="registerStateChange(false)">UnRegister</button> -->
+        </div>
+      </div>
+      <div class="ms-5 mt-3">
+        <div v-if="recipe.author">
+          <span class="label">Author:</span>
+          <span class="value">{{ recipe.author }}</span>
+        </div>
+        <div v-if="recipe.author">
+          <span class="label">AVG Rate:</span>
+          <span class="value">{{ recipe.ratingAvg }}</span>
+        </div>
+        <div class="mt-3" v-if="recipe.author">
+          <span class="label">Description:</span>
+          <div class="value">{{ recipe.description }}</div>
+        </div>
+
+        <div class="mt-3" v-if="recipe.author">
+          <span class="label">Instruction:</span>
+          <div class="value">{{ recipe.instruction }}</div>
+        </div>
+
+        <!-- <div v-if="recipe"></div> -->
+      </div>
+      <div class="d-flex justify-content-center mt-3">
+        <div v-if="recipe" style="width: 120px">
+          <CommentDialog @rating="loadRecipe" :recipe="recipe.title" :recipe-id="recipe.id" />
+        </div>
+      </div>
+
+      <div class="comments">
+        <div class="commentTitle ms-5">Comments:</div>
+
+        <DataTable
+          :value="comments"
+          class="m-3"
+          paginator
+          :rows="5"
+          :rowsPerPageOptions="[5, 10, 20]"
+        >
+          <Column field="username" header="id"></Column>
+          <Column field="description" header="description"></Column>
+          <Column field="rating" header="rating"></Column>
+          <Column field="createTime" header="Post Time"></Column>
+          <Column v-if="userStore.role === 'admin'" header="Delete"></Column>
+          <!-- createTime -->
+        </DataTable>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { computed, onMounted, ref } from 'vue'
+import { auth, functions } from '@/firebase'
+import { onAuthStateChanged } from 'firebase/auth'
+import { httpsCallable } from 'firebase/functions'
+import { useRoute, useRouter } from 'vue-router'
+import { MapboxMap, MapboxMarker, MapboxPopup } from '@studiometa/vue-mapbox-gl'
+import { toJsDate, formatYMDHMS } from '@/utils/datetime'
+import { useUserStore } from '@/store/user'
+import { DataTable, Column } from 'primevue'
+import CommentDialog from '@/components/commentDialog.vue'
+
+const route = useRoute()
+const rid = ref('')
+const recipe = ref({})
+const comments = ref([])
+const router = useRouter()
+const userStore = useUserStore()
+const favourState = ref(false)
+
+function getRid(r = route) {
+  rid.value = r.params.id
+  // return String(r.params.id ?? '')
+}
+const favourResult = ref({})
+
+const favourStateChange = async (state) => {
+  const payload = { uid: userStore.uid, rid: rid.value, favourState: state }
+  console.log('FavourStateChange')
+  console.log(payload)
+  try {
+    const call = httpsCallable(functions, 'userFavourStateChange')
+    const result = await call(payload)
+    const favourList = result.data.newDoc.favourRecipe
+    if (favourList.includes(rid.value)) {
+      favourState.value = true
+    } else {
+      favourState.value = false
+    }
+  } catch (e) {
+    console.log(e)
+  }
+}
+
+function waitforAuth() {
+  return new Promise((resolve) => {
+    const off = onAuthStateChanged(auth, (u) => {
+      off()
+      resolve(u)
+    })
+  })
+}
+
+const loadCommentPoster = async (list) => {
+  try {
+    // getUsernamesByIds
+    const call = httpsCallable(functions, 'getUsernamesByIds')
+    const payload = { idList: list }
+    const result = await call(payload)
+    const usernameList = result.data.usernames
+
+    // // create a quick lookup dictionary for usernames
+    const usernameMap = Object.fromEntries(usernameList.map((u) => [u.id, u.username]))
+
+    comments.value = comments.value.map((c) => ({
+      ...c,
+      username: usernameMap[c.poster] || 'Unknown',
+    }))
+
+    console.log(result.data)
+  } catch (err) {
+    console.log(err)
+  }
+}
+
+const loadRecipe = async () => {
+  try {
+    const call = httpsCallable(functions, 'getRecipeById')
+    const payload = { id: rid.value }
+    const result = await call(payload)
+    recipe.value = result.data
+    comments.value = recipe.value.comments
+
+    comments.value.map((record) => {
+      record.createTime = formatYMDHMS(toJsDate(record.createdAt))
+    })
+    const commentPosters = comments.value.map((record) => {
+      return record.poster
+    })
+    // getUsernamesByIds
+    await loadCommentPoster(commentPosters)
+  } catch (err) {
+    console.log(err)
+  }
+}
+
+const getUserInfo = async () => {
+  try {
+    const call = httpsCallable(functions, 'getUserInfo')
+    const result = await call(userStore.id)
+    const favourList = result.data.profile.favourRecipe
+    if (favourList.includes(rid.value)) {
+      favourState.value = true
+    } else {
+      favourState.value = false
+    }
+  } catch (e) {
+    console.log(e)
+  }
+}
+
+onMounted(async () => {
+  const user = await waitforAuth()
+  getRid()
+  if (user) {
+    await getUserInfo()
+    await loadRecipe()
+  }
+})
+
+const goBack = () => {
+  router.back()
+}
+</script>
+
+<style scoped>
+.background {
+  border-radius: 30px;
+  background-color: antiquewhite;
+}
+
+.label {
+  display: inline-block;
+  width: 100px; /* same width for all labels */
+  font-weight: bold;
+}
+
+.value {
+  font-style: italic;
+
+  flex: 1;
+}
+
+.commentTitle {
+  font-size: 20px;
+  font-weight: bold;
+  font-style: italic;
+}
+</style>
