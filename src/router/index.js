@@ -11,6 +11,8 @@ import ProfileView from '@/views/ProfileView.vue'
 import EventDetailView from '@/views/event/EventDetailView.vue'
 import RecipeDetailView from '@/views/recipe/RecipeDetailView.vue'
 import { useUserStore } from '@/store/user'
+import RecipeManagerView from '@/views/recipe/RecipeManagerView.vue'
+import EventManageView from '@/views/event/EventManageView.vue'
 import { auth } from '@/firebase'
 
 const routes = [
@@ -58,6 +60,7 @@ const routes = [
     children: [
       { path: 'rid=:id', name: 'RecipeDetail', props: true, component: RecipeDetailView },
       { path: 'list', name: 'RecipeList', component: RecipeListView },
+      { path: 'manager',name: 'RecipeManager',component: RecipeManagerView}
     ],
   },
   {
@@ -73,6 +76,8 @@ const routes = [
       { path: 'eid=:id', name: 'EventDetails', props: true, component: EventDetailView },
       { path: 'list', name: 'EventList', component: EventsView },
       { path: 'map', name: 'EventMap', component: MapView },
+      { path: 'manager', name: 'EventManager', component: EventManageView },
+
     ],
   },
 ]

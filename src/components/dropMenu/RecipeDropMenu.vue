@@ -12,7 +12,7 @@
         <ul class="list">
           <li @click="emit('goRecipeList')">Recipe List</li>
           <li @click="emit('goFavour')">Favour</li>
-          <li v-if="userStore.role=== 'admin'">Recipe Manager</li>
+          <li @click="emit('goRecipeManager')" v-if="userStore.role=== 'admin'">Recipe Manager</li>
         </ul>
       </div>
     </Transition>
@@ -22,7 +22,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useUserStore } from '@/store/user'
-const emit = defineEmits(['goRecipeList', 'goFavour'])
+const emit = defineEmits(['goRecipeList', 'goFavour', 'goRecipeManager'])
 
 const userStore = useUserStore()
 

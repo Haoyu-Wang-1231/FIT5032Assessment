@@ -155,12 +155,13 @@ async function loadUserInfo() {
   try {
     const call = httpsCallable(functions, 'getUserInfo')
     const result = await call(userStore.id)
-    console.log('results:')
+    console.log('results from uid: ', userStore.id)
+
     userInfo.value = result.data.profile
     console.log(userInfo.value)
 
-    getFavourRecipes()
-    getRegistedEvents()
+    await getFavourRecipes()
+    await getRegistedEvents()
   } catch (e) {
     console.log(e)
   }
@@ -200,7 +201,6 @@ onMounted(async () => {
 
 .value {
   font-style: italic;
-
   flex: 1;
 }
 </style>

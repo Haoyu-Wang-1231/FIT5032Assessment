@@ -23,6 +23,7 @@ const adminAuth = getAuth();
 Object.assign(exports, require("./src/recipes"));
 Object.assign(exports, require("./src/events"));
 Object.assign(exports, require("./src/user"));
+Object.assign(exports, require("./src/mail"));
 
 
 exports.hello = onRequest((req, res) => {

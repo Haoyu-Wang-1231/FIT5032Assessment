@@ -9,7 +9,7 @@
         <ul class="list">
           <li @click="emit('goEventsList')">Event list</li>
           <li @click="emit('goEventsMap')">Event map</li>
-          <li v-if="userStore.role === 'admin'">Event Manager</li>
+          <li v-if="userStore.role === 'admin'" @click="emit('goEventsManager')">Event Manager</li>
         </ul>
       </div>
     </Transition>
@@ -20,7 +20,7 @@
 import { ref } from 'vue'
 import { useUserStore } from '@/store/user'
 
-const emit = defineEmits(['goEventsList', 'goEventsMap'])
+const emit = defineEmits(['goEventsList', 'goEventsMap', 'goEventsManager'])
 
 const open = ref(false)
 let timer = null

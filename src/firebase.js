@@ -19,7 +19,7 @@ const auth = getAuth(app)
 auth.setPersistence(browserLocalPersistence)
 
 const db = getFirestore(app)
-const functions = getFunctions(app)
+const functions = getFunctions(app, 'australia-southeast1')
 
 const useEmu = import.meta.env.VITE_USE_EMULATORS === 'true'
 if (useEmu) {

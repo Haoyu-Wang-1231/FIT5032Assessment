@@ -19,12 +19,11 @@
           </template>
         </UserDropMenu>
 
-
-
         <RecipeDropMenu
           v-else-if="link.name === 'Recipes'"
           @goRecipeList="goRecipeList"
           @goFavour=""
+          @goRecipeManager="goRecipeManager"
         >
           <template #trigger>
             <span class="user-trigger">{{ link.name }}</span>
@@ -35,6 +34,7 @@
           v-else-if="link.name === 'Events' && link.children"
           @goEventsList="goEventsList"
           @goEventsMap="goEventsMap"
+          @goEventsManager="goEventsManager"
         >
           <template #trigger>
             <span class="user-trigger">{{ link.name }}</span>
@@ -88,20 +88,29 @@ const goProfile = () => {
   // router.push({ name: 'UserProfile', params: { uid: userStore.id } })
 }
 
-
-const goRecipeList = ()=>{
-  router.push({name: 'RecipeList' })
+const goRecipeManager = () => {
+  if (userStore.isAdmin) {
+    router.push({ name: 'RecipeManager' })
+  }
 }
 
-const goFavour = ()=>{
-
+const goEventsManager = () => {
+  if (userStore.isAdmin) {
+    router.push({ name: 'EventManager' })
+  }
 }
+
+const goRecipeList = () => {
+  router.push({ name: 'RecipeList' })
+}
+
+const goFavour = () => {}
 
 const goEventsList = () => {
-  router.push({name: 'EventList'})
+  router.push({ name: 'EventList' })
 }
 const goEventsMap = () => {
-  router.push({name: 'EventMap'})
+  router.push({ name: 'EventMap' })
 }
 
 const logout = async () => {
@@ -131,7 +140,6 @@ async function waitForAuth() {
   })
 }
 
-
 async function loadUser() {
   try {
     const call = httpsCallable(functions, 'getUserInfo')
@@ -153,7 +161,6 @@ onMounted(async () => {
   if (user) {
     // await userStore.setUser(user.uid, user.email)
     await loadUser()
-    
   }
 })
 </script>

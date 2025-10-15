@@ -1,4 +1,13 @@
 <template>
+  <div id="pdfContent" v-if="showPDF" class="card p-4 shadow">
+    <h1>{{ recipe.title }}</h1>
+    <p><b>Author:</b> {{ recipe.author }}</p>
+    <p><b>average rating:</b> {{ recipe.ratingAvg }}</p>
+    <p><b>rating count:</b> {{ recipe.ratingCount }}</p>
+    <p><b>Description:</b> {{ recipe.description }}</p>
+    <p><b>Instruction:</b> {{ recipe.instruction }}</p>
+  </div>
+
   <div class="container d-flex justify-content-center" style="padding-top: 3%">
     <div class="col-xxl-12 col-lg-12 col-md-12 col-sm-12 col-12 background">
       <div class="title d-flex justify-content-around pt-4">
@@ -6,6 +15,7 @@
 
         <h1>{{ recipe.title }}</h1>
         <div>
+          <button class="btn btn-primary me-2" @click="exportRecipe">Export</button>
           <button
             v-if="!favourState"
             class="btn btn-primary"
@@ -46,13 +56,13 @@
 
         <!-- <div v-if="recipe"></div> -->
       </div>
-      <div class="d-flex justify-content-center mt-3">
+      <div class="d-flex justify-content-center mt-3 mb-3">
         <div v-if="recipe" style="width: 120px">
           <CommentDialog @rating="loadRecipe" :recipe="recipe.title" :recipe-id="recipe.id" />
         </div>
       </div>
 
-      <div class="comments">
+      <div class="comments" v-if="comments.length > 0">
         <div class="commentTitle ms-5">Comments:</div>
 
         <DataTable
@@ -75,7 +85,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, ref } from 'vue'
 import { auth, functions } from '@/firebase'
 import { onAuthStateChanged } from 'firebase/auth'
 import { httpsCallable } from 'firebase/functions'
@@ -84,7 +94,9 @@ import { MapboxMap, MapboxMarker, MapboxPopup } from '@studiometa/vue-mapbox-gl'
 import { toJsDate, formatYMDHMS } from '@/utils/datetime'
 import { useUserStore } from '@/store/user'
 import { DataTable, Column } from 'primevue'
-import CommentDialog from '@/components/commentDialog.vue'
+import CommentDialog from '@/components/dialog/commentDialog.vue'
+import html2canvas from 'html2canvas'
+import jsPDF from 'jspdf'
 
 const route = useRoute()
 const rid = ref('')
@@ -93,12 +105,46 @@ const comments = ref([])
 const router = useRouter()
 const userStore = useUserStore()
 const favourState = ref(false)
+const showPDF = ref(false)
 
 function getRid(r = route) {
   rid.value = r.params.id
   // return String(r.params.id ?? '')
 }
-const favourResult = ref({})
+
+// export recipe data pdf
+const exportRecipe = async () => {
+  showPDF.value = true
+  await nextTick()
+
+  const content = document.getElementById('pdfContent')
+  if (!content) {
+    console.error(' pdfContent not found in DOM')
+    return
+  }
+  try {
+    const canvas = await html2canvas(content, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#ffffff',
+    })
+
+    const imgData = canvas.toDataURL('image/png')
+
+    if (!imgData.startsWith('data:image/png;base64,')) {
+      throw new Error('Invalid image data returned from html2canvas')
+    }
+    const pdf = new jsPDF('p', 'mm', 'a4')
+    const pdfWidth = pdf.internal.pageSize.getWidth()
+    const pdfHeight = (canvas.height * pdfWidth) / canvas.width
+
+    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight)
+    pdf.save(`${recipe.title}.pdf`)
+  } catch (err) {
+    console.log(err)
+  }
+  showPDF.value = false
+}
 
 const favourStateChange = async (state) => {
   const payload = { uid: userStore.uid, rid: rid.value, favourState: state }

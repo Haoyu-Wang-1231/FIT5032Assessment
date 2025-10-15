@@ -3,8 +3,36 @@ const { getFirestore, FieldValue } = require('firebase-admin/firestore')
 const { sanitizePlainText } = require('./sanitize.js')
 const { logger } = require('firebase-functions')
 const { error } = require('firebase-functions/logger')
-
+const { serverTimestamp } = require('firebase/firestore')
+const { sendEmailFromFunctions } = require('./mail.js')
 const db = getFirestore()
+
+const registerUser = onCall(async(request)=>{
+  const uid = request.data.uid
+  const email = request.data.email
+  const username = request.data.username
+
+  try{
+    const userRef = db.collection('users').doc(uid)
+    const snap = await userRef.set({
+      email: email,
+      role: 'viewer',
+      createdAt: FieldValue.serverTimestamp(),
+      username: username,
+      favourRecipe: [],
+      registedEvent: []
+    })
+
+    const payload = {to: email, subject: "Thanks for join us", text: "Welcome to General Nutrition Educator."}
+    await sendEmailFromFunctions(payload)
+
+    return {ok: true}
+  }catch(err){
+    console.log(err)
+    return {error: err}
+  }
+})
+
 
 const userFavourStateChange = onCall(async (request) => {
   if (!request.auth) {
@@ -62,7 +90,7 @@ const userRegisterStateChange = onCall(async (request) => {
   try {
     const userRef = db.collection('users').doc(userId)
     const snap = await userRef.get()
-
+    
     if (!snap.exists) {
       throw new HttpsError('not-found', 'User profile does not exist.')
     }
@@ -71,6 +99,7 @@ const userRegisterStateChange = onCall(async (request) => {
       await userRef.update({
         registedEvent: FieldValue.arrayUnion(eventId),
       })
+
     } else {
       await userRef.update({
         registedEvent: FieldValue.arrayRemove(eventId),
@@ -132,4 +161,4 @@ const getUserInfo = onCall(async (request) => {
   }
 })
 
-module.exports = { getUserInfo, getUsernamesByIds, userRegisterStateChange, userFavourStateChange }
+module.exports = { getUserInfo, getUsernamesByIds, userRegisterStateChange, userFavourStateChange, registerUser }

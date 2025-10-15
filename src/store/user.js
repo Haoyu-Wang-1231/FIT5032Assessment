@@ -18,13 +18,26 @@ export const useUserStore = defineStore(
     const isSignedIn = computed(() => !!uid.value)
     const isAdmin = computed(() => role.value === 'admin')
 
+    function setUsername(username) {
+      username.value = username
+    }
+
     async function getUserName(uid) {
+      console.log('getUser functions')
+      if (!uid) return
       const call = httpsCallable(functions, 'getUserInfo')
       const payload = { userId: uid }
 
       const result = await call(payload)
-      console.log(result)
+      if (!result.data.exists) {
+        console.log('not exist')
+
+        username.value = null
+        return
+      }
+
       username.value = result.data.profile.username
+      console.log('finish user functions')
     }
 
     async function refreshPermissions(force = false) {

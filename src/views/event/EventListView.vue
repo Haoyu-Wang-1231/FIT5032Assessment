@@ -25,35 +25,28 @@
       </div>
       <div class="m-3">
         <DataTable
+          sortMode="multiple"
           :value="events"
           class="m-3"
           paginator
           :rows="10"
+          removableSort
           :rowsPerPageOptions="[5, 10, 20]"
+          selectionMode="single"
+          @rowSelect="selectRow"
         >
-          <Column field="title" header="title"></Column>
-          <Column field="organizer" header="organizer">
+          <Column field="title" sortable header="title"></Column>
+          <Column field="organizer" sortable header="organizer">
             <template #body="{ data }">{{ data.organizer || 'null' }}</template>
           </Column>
-          <Column field="category" header="Category">
+          <Column field="category" sortable header="Category">
             <template #body="{ data }">{{ data.category || 'null' }}</template>
           </Column>
           <Column field="description" header="description">
             <template #body="{ data }">{{ data.description || 'null' }}</template>
           </Column>
-          <Column field="displayDate" header="Date"></Column>
-          <Column class="w-24 !text-end">
-            <template #body="{ data }">
-              <button
-                class="btn btn-primary ms-4"
-                @click="selectRow(data)"
-                severity="secondary"
-                rounded
-              >
-                Details
-              </button>
-            </template>
-          </Column>
+          <Column field="displayDate" sortable header="Date"></Column>
+
         </DataTable>
       </div>
     </div>
@@ -80,7 +73,7 @@ const router = useRouter()
 const selections = ref([
   { name: 'title' },
   { name: 'organizer' },
-  { name: 'Category' },
+  { name: 'category' },
   { name: 'description' },
 ])
 
@@ -130,9 +123,9 @@ const search = async () => {
   }
 }
 
-const selectRow = (data) => {
-  console.log(data.id)
-  router.push({ name: 'EventDetails', params: { id: data.id } })
+const selectRow = (event) => {
+  console.log(event.data.id)
+  router.push({ name: 'EventDetails', params: { id: event.data.id } })
 }
 </script>
 

@@ -25,12 +25,12 @@
     </div>
 
     <div class="mc-actions">
-      <button class="mc-btn" type="button">Register</button>
+      <button class="mc-btn" type="button" @click="startnavigating">Navigate</button>
       <button class="mc-link" type="button" @click="checkDetails">Details</button>
     </div>
   </div>
 </template>
-
+<!-- -37.91341992816506, 145.13154292505845 -->
 <script setup>
 import { computed } from 'vue'
 import { toJsDate, formatYMDHMS } from '@/utils/datetime'
@@ -40,11 +40,18 @@ const router = useRouter()
 
 const props = defineProps({
   event: Object,
+  onNavigate: Function,
 })
 
 const checkDetails = () => {
   console.log(props.event.id)
   router.push({ name: 'EventDetails', params: { id: props.event.id } })
+}
+
+const startnavigating = () => {
+  if (props.onNavigate) {
+    props.onNavigate(props.event.lng, props.event.lat)
+  }
 }
 
 const displayDate = computed(() => {

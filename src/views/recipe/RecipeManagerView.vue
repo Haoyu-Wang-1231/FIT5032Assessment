@@ -4,7 +4,7 @@
       class="col-xxl-12 col-lg-12 col-md-12 col-sm-12 col-10 background"
       style="padding-bottom: 5%"
     >
-      <div class="d-flex justify-content-around ">
+      <div class="d-flex justify-content-around align-items-center flex-column flex-sm-row">
         <div></div>
         <h1 class="mt-5 text-center">Nutrition Recipes</h1>
         <!-- <Select 
@@ -27,14 +27,16 @@
             class="background flex align-items-center border-bottom-1 surface-border"
           >
             <div class="card">
-              <div class="card-header d-flex justify-content-between flex-column flex-sm-row">
-                <div class="d-flex justify-content-between">
+              <div class="card-header d-flex justify-content-between p-2 flex-column flex-sm-row">
+                <div class="p-2">
                   {{ card.title }}
                 </div>
-                <div>
+                <div class="p-2">
                   <button class="btn btn-primary" @click="goDetail(card.id)">Detail</button>
+                  <button v-if="userStore.role === 'admin'" class="btn btn-danger ms-2" @click="deleteRecipe(card.id)">
+                    remove recipe
+                  </button>
                 </div>
-                
               </div>
               <ul class="list-group list-group-flush">
                 <li class="list-group-item">Author: {{ card.author }}</li>
@@ -59,7 +61,7 @@
 
       <div class="d-flex justify-content-center">
         <!-- <button v-if="userStore.role === 'admin'" class="btn btn-primary">Add Recipes</button> -->
-        <!-- <AddRecipeDialog @recipeSaved="reloadReciepes" v-if="userStore.role === 'admin'" /> -->
+        <AddRecipeDialog class="mb-3" @recipeSaved="reloadReciepes" v-if="userStore.role === 'admin'" />
       </div>
     </div>
   </div>
@@ -74,7 +76,7 @@ import { storeToRefs } from 'pinia'
 import { onAuthStateChanged } from 'firebase/auth'
 import { getFunctions, httpsCallable, connectFunctionsEmulator } from 'firebase/functions'
 // import DataView from 'primevue/dataview'
-import { DataTable, DataView, Column, Select } from 'primevue'
+import { DataTable,DataView, Column, Select } from 'primevue'
 
 import CommentDialog from '@/components/dialog/commentDialog.vue'
 import AddRecipeDialog from '@/components/dialog/AddRecipeDialog.vue'
@@ -88,38 +90,43 @@ const selections = ref([
   { name: 'description' },
 ])
 
+
 const recipes = ref([])
 const userStore = useUserStore()
 const router = useRouter()
 
 const { isSignedIn, isAdmin, role, email, loading } = storeToRefs(userStore)
 
-const exportCSV = () => {
-  const data = recipes.value.map((recipe) => ({
+
+const exportCSV = ()=>{
+  const data = recipes.value.map(recipe => ({
     title: recipe.title,
     author: recipe.author,
     description: recipe.description,
     instruction: recipe.instruction,
     average_rating: recipe.rating,
-    rating: recipe.ratingNum,
+    rating: recipe.ratingNum
   }))
 
   const csvContent = convertToCSV(data)
-  const blob = new Blob([csvContent], [{ type: 'text/csv;charset=utf-8' }])
+  const blob = new Blob([csvContent], [{type: 'text/csv;charset=utf-8'}])
   const url = URL.createObjectURL(blob)
   const link = document.createElement('a')
   link.href = url
   link.setAttribute('download', 'export_data.csv')
   link.click()
+
 }
 
-const convertToCSV = (data) => {
+const convertToCSV= (data)=>{
   const headers = Object.keys(data[0])
-  const rows = data.map((obj) => headers.map((header) => obj[header]))
+  const rows = data.map(obj=> headers.map(header =>obj[header]))
   const headerRow = headers.join(',')
-  const csvRows = [headerRow, ...rows.map((row) => row.join(','))]
+  const csvRows = [headerRow, ...rows.map(row=> row.join(','))]
   return csvRows.join('\n')
+
 }
+
 
 const goDetail = (input) => {
   console.log(input)

@@ -1,5 +1,5 @@
 const { onCall, HttpsError } = require('firebase-functions/v2/https')
-const { getFirestore, FieldValue } = require('firebase-admin/firestore')
+const { getFirestore, FieldValue, Timestamp } = require('firebase-admin/firestore')
 const { sanitizePlainText } = require('./sanitize.js')
 const { logger } = require('firebase-functions')
 
@@ -9,12 +9,159 @@ function hasValidLatLng(lat, lng) {
   return lat !== null && lng !== null && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180
 }
 
+const removeEvent = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'Please sign in first.')
+  }
+
+  const claims = request.auth.token
+
+  if (claims.role !== 'admin') {
+    throw new HttpsError('permission-denied', 'Only admins can create events.')
+  }
+
+  const eid = request.data.id
+  if(!eid){
+    throw new HttpsError('invalid-argument', 'event id is required.')
+  }
+
+  try{
+    await db.collection('events').doc(eid).delete()
+    return {ok: true, deleted: eid}
+
+  }catch(err){
+    console.log(err)
+  }
+// const recipeId = request.data?.id || {}
+//   if (!recipeId || typeof recipeId !== 'string') {
+//     throw new HttpsError('invalid-argument', 'recipeId is required.')
+//   }
+
+//   try {
+//     await db.collection('recipes').doc(request.data.id).delete()
+//     return { ok: true, deleted: request.data.id }
+//   } catch (error) {
+//     logger.info(
+//       `Failed to delete recipe ${request.data.id} by ${request.auth.uid}: ${error.message}`,
+//     )
+//     throw new HttpsError(error)
+//   }
+
+})
+
+const modifyEvent = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'Please sign in first.')
+  }
+
+  const claims = request.auth.token
+
+  if (claims.role !== 'admin') {
+    throw new HttpsError('permission-denied', 'Only admins can create events.')
+  }
+  const uid = request.auth.uid
+  const eid = request.data.id
+  const data = request.data || {}
+  const title = sanitizePlainText(data.title, 50)
+  const organizer = sanitizePlainText(data.organizer, 50)
+
+  const category = sanitizePlainText(data.organizer, 50)
+  const description = sanitizePlainText(data.organizer, 150)
+  if (!data.date) {
+    throw new HttpsError('invalid-argument', 'Date is required.')
+  }
+
+  const date = Timestamp.fromDate(new Date(data.date))
+  const lat = parseFloat(data.lat)
+  const lng = parseFloat(data.lng)
+  if (isNaN(lat) || isNaN(lng)) {
+    throw new HttpsError('invalid-argument', 'Invalid latitude or longitude.')
+  }
+  try {
+    // const docRef = await db.collection('events').add({
+    //   title,
+    //   organizer,
+    //   category,
+    //   description,
+    //   eventDate,
+    //   lat,
+    //   lng,
+    //   createdAt: Timestamp.now(),
+    //   createdBy: uid,
+    // })
+
+    const eventRef = db.collection('events').doc(eid)
+    const snap = await eventRef.set({
+      title,
+      organizer,
+      category,
+      description,
+      date,
+      lat,
+      lng,
+    })
+
+    // logger.info(`Recipe created ${docRef.id} by ${uid}`)
+    return { ok: true }
+  } catch (err) {
+    console.log(err)
+  }
+})
+
+const saveEvent = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'Please sign in first.')
+  }
+
+  const claims = request.auth.token
+
+  if (claims.role !== 'admin') {
+    throw new HttpsError('permission-denied', 'Only admins can create events.')
+  }
+
+  const uid = request.auth.uid
+  const data = request.data || {}
+  const title = sanitizePlainText(data.title, 50)
+  const organizer = sanitizePlainText(data.organizer, 50)
+
+  const category = sanitizePlainText(data.organizer, 50)
+  const description = sanitizePlainText(data.organizer, 150)
+  if (!data.date) {
+    throw new HttpsError('invalid-argument', 'Date is required.')
+  }
+
+  const eventDate = Timestamp.fromDate(new Date(data.date))
+  const lat = parseFloat(data.lat)
+  const lng = parseFloat(data.lng)
+  if (isNaN(lat) || isNaN(lng)) {
+    throw new HttpsError('invalid-argument', 'Invalid latitude or longitude.')
+  }
+
+  try {
+    const docRef = await db.collection('events').add({
+      title,
+      organizer,
+      category,
+      description,
+      eventDate,
+      lat,
+      lng,
+      createdAt: Timestamp.now(),
+      createdBy: uid,
+    })
+    logger.info(`Event created ${docRef.id} by ${uid}`)
+    return { ok: true, id: docRef.id }
+  } catch (err) {
+    console.log(err)
+  }
+})
+
 const getEventListByTitle = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError('unauthenticated', 'Please sign in first.')
   }
 
-  const searchWord = request.data?.searchWord
+  let searchWord = request.data?.searchWord
   const searchType = request.data?.type
 
   if (!searchWord) {
@@ -157,4 +304,13 @@ const getEvents = onCall(async (request) => {
   }
 })
 
-module.exports = { getEvents, getMapEvents, getEventById, getEventListByIds, getEventListByTitle }
+module.exports = {
+  getEvents,
+  getMapEvents,
+  getEventById,
+  getEventListByIds,
+  getEventListByTitle,
+  saveEvent,
+  modifyEvent,
+  removeEvent
+}
