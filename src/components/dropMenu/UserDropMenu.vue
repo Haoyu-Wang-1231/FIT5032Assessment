@@ -1,19 +1,40 @@
 <template>
   <!-- @mouseleave="openWithDelay(false)" -->
 
-  <div class="hover-card" @mouseenter="openWithDelay(true)" @mouseleave="openWithDelay(false)">
+  <div
+    class="hover-card"
+    @mouseenter="openWithDelay(true)"
+    @mouseleave="openWithDelay(false)"
+    @keydown="handleKey"
+  >
     <slot name="trigger">
       <!-- <img class="avatar" src="/avatar.png" alt="avatar" /> -->
     </slot>
 
     <Transition name="fade-pop">
-      <div v-if="open" class="menu" role="menu" :aria-expanded="open">
+      <div v-if="open" class="menu" role="menu" :aria-expanded="true">
         <div class="header">
           <div class="title">{{ userStore.username }}</div>
         </div>
         <ul class="list">
-          <li @click="emit('goProfile')">Profile</li>
-          <li @click="emit('logout')">Log out</li>
+          <li
+            v-for="(item, i) in [
+              { label: 'Profile', action: () => emit('goProfile') },
+              { label: 'Log out', action: () => emit('logout') },
+            ]"
+            :key="item.label"
+            ref="menuItems"
+            role="menuitem"
+            tabindex="0"
+            @keydown.enter.prevent="item.action()"
+            @keydown.space.prevent="item.action()"
+            @click="item.action()"
+          >
+            {{ item.label }}
+          </li>
+
+          <!-- <li @click="emit('goProfile')">Profile</li>
+          <li @click="emit('logout')">Log out</li> -->
         </ul>
       </div>
     </Transition>
@@ -21,19 +42,37 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, nextTick } from 'vue'
 import { useUserStore } from '@/store/user'
 const emit = defineEmits(['logout', 'goProfile'])
 
 const userStore = useUserStore()
 
 const open = ref(false)
+const menuItems = ref([])
 let timer = null
 
 function openWithDelay(show) {
   clearTimeout(timer)
-  timer = setTimeout(() => (open.value = show), show ? 40 : 160)
+  timer = setTimeout(async () => {
+    open.value = show
+    if (show) {
+      // wait for DOM update
+      await nextTick()
+      menuItems.value[0]?.focus()
+    }
+  }, show ? 40 : 160)
 }
+
+function handleKey(e) {
+  if (e.key === 'Escape') {
+    openWithDelay(false)
+  }
+}
+
+defineExpose({
+  openWithDelay,
+})
 </script>
 
 <style scoped>
@@ -79,14 +118,14 @@ function openWithDelay(show) {
   list-style: none;
 }
 .list li {
-  display: flex;                 /* ensures vertical centering */
-  align-items: center;           /* centers text vertically */
-  justify-content: flex-start;   /* text starts at left edge */
-  min-height: 40px;              /* consistent clickable area */
-  padding: 0 14px;               /* horizontal padding */
+  display: flex; /* ensures vertical centering */
+  align-items: center; /* centers text vertically */
+  justify-content: flex-start; /* text starts at left edge */
+  min-height: 40px; /* consistent clickable area */
+  padding: 0 14px; /* horizontal padding */
   border-radius: 6px;
   cursor: pointer;
-  line-height: 1;                /* remove extra line spacing */
+  line-height: 1; /* remove extra line spacing */
   font-size: 15px;
 }
 .list li:hover {

@@ -83,11 +83,7 @@ import { useUserStore } from '@/store/user'
 import { getFunctions, httpsCallable, connectFunctionsEmulator } from 'firebase/functions'
 import { Alert } from 'bootstrap'
 
-
 const emit = defineEmits(['eventSaved'])
-
-
-
 
 const userStore = useUserStore()
 const visible = ref(false)
@@ -123,6 +119,7 @@ const saveEvent = async () => {
       lat: parseFloat(event.value.latitude),
       lng: parseFloat(event.value.longitude),
     }
+    
 
     for (const [key, value] of Object.entries(payload)) {
       // For latitude/longitude, check for NaN specifically
@@ -136,6 +133,12 @@ const saveEvent = async () => {
         return
       }
     }
+    const now = new Date()
+    if(payload.date < now){
+      alert('Time invalid')
+      return
+    }
+
     if (payload.lat > 90 || payload.lat < -90) {
       alert('Latitude must be between -90 and 90.')
       return
@@ -150,11 +153,8 @@ const saveEvent = async () => {
     const result = await call(payload)
     console.log(result.data)
 
-    // const call = httpsCallable(functions, 'getEvents')
-    // const result = await call()
-    // console.log(payload)
-    visible.value=false
-    emit('eventSaved');
+    visible.value = false
+    emit('eventSaved')
   } catch (err) {
     // alert(err)
     console.warn(err)

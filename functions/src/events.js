@@ -1,6 +1,8 @@
 const { onCall, HttpsError } = require('firebase-functions/v2/https')
 const { getFirestore, FieldValue, Timestamp } = require('firebase-admin/firestore')
 const { sanitizePlainText } = require('./sanitize.js')
+const { sendEmailFromFunctions } = require('./mail.js')
+
 const { logger } = require('firebase-functions')
 
 const db = getFirestore()
@@ -21,32 +23,30 @@ const removeEvent = onCall(async (request) => {
   }
 
   const eid = request.data.id
-  if(!eid){
+  if (!eid) {
     throw new HttpsError('invalid-argument', 'event id is required.')
   }
 
-  try{
+  try {
     await db.collection('events').doc(eid).delete()
-    return {ok: true, deleted: eid}
-
-  }catch(err){
+    return { ok: true, deleted: eid }
+  } catch (err) {
     console.log(err)
   }
-// const recipeId = request.data?.id || {}
-//   if (!recipeId || typeof recipeId !== 'string') {
-//     throw new HttpsError('invalid-argument', 'recipeId is required.')
-//   }
+  // const recipeId = request.data?.id || {}
+  //   if (!recipeId || typeof recipeId !== 'string') {
+  //     throw new HttpsError('invalid-argument', 'recipeId is required.')
+  //   }
 
-//   try {
-//     await db.collection('recipes').doc(request.data.id).delete()
-//     return { ok: true, deleted: request.data.id }
-//   } catch (error) {
-//     logger.info(
-//       `Failed to delete recipe ${request.data.id} by ${request.auth.uid}: ${error.message}`,
-//     )
-//     throw new HttpsError(error)
-//   }
-
+  //   try {
+  //     await db.collection('recipes').doc(request.data.id).delete()
+  //     return { ok: true, deleted: request.data.id }
+  //   } catch (error) {
+  //     logger.info(
+  //       `Failed to delete recipe ${request.data.id} by ${request.auth.uid}: ${error.message}`,
+  //     )
+  //     throw new HttpsError(error)
+  //   }
 })
 
 const modifyEvent = onCall(async (request) => {
@@ -65,8 +65,8 @@ const modifyEvent = onCall(async (request) => {
   const title = sanitizePlainText(data.title, 50)
   const organizer = sanitizePlainText(data.organizer, 50)
 
-  const category = sanitizePlainText(data.organizer, 50)
-  const description = sanitizePlainText(data.organizer, 150)
+  const category = sanitizePlainText(data.category, 50)
+  const description = sanitizePlainText(data.description, 150)
   if (!data.date) {
     throw new HttpsError('invalid-argument', 'Date is required.')
   }
@@ -77,29 +77,56 @@ const modifyEvent = onCall(async (request) => {
   if (isNaN(lat) || isNaN(lng)) {
     throw new HttpsError('invalid-argument', 'Invalid latitude or longitude.')
   }
+  console.log("modity")
   try {
-    // const docRef = await db.collection('events').add({
-    //   title,
-    //   organizer,
-    //   category,
-    //   description,
-    //   eventDate,
-    //   lat,
-    //   lng,
-    //   createdAt: Timestamp.now(),
-    //   createdBy: uid,
-    // })
-
     const eventRef = db.collection('events').doc(eid)
-    const snap = await eventRef.set({
-      title,
-      organizer,
-      category,
-      description,
-      date,
-      lat,
-      lng,
-    })
+    const snap = await eventRef.get()
+
+    if (!snap.exists) {
+      console.warn('not exists')
+    }
+    await eventRef.set(
+      {
+        title,
+        organizer,
+        category,
+        description,
+        date,
+        lat,
+        lng,
+      },
+      { merge: true },
+    )
+
+
+    const usersList = snap.data().registers
+    if(usersList === null){
+      return{state: "no user register the event."}
+    }
+
+    const emails = await Promise.all(
+      usersList.map(async (uid) => {
+        const userRef = db.collection('users').doc(uid)
+        const snap = await userRef.get()
+        if (snap.exists) {
+          const data = snap.data()
+          return data.email || null
+        } else {
+          return null
+        }
+      }),
+    )
+
+    const emailString = emails.filter(Boolean).join(',')
+    const payload = {
+      to: emailString,
+      subject: 'Sorry For Event change',
+      text: 'The event information have been changed, please check on web.',
+    }
+    console.log(payload)
+
+
+    await sendEmailFromFunctions(payload)
 
     // logger.info(`Recipe created ${docRef.id} by ${uid}`)
     return { ok: true }
@@ -144,6 +171,7 @@ const saveEvent = onCall(async (request) => {
       category,
       description,
       eventDate,
+      registers: [],
       lat,
       lng,
       createdAt: Timestamp.now(),
@@ -157,10 +185,6 @@ const saveEvent = onCall(async (request) => {
 })
 
 const getEventListByTitle = onCall(async (request) => {
-  if (!request.auth) {
-    throw new HttpsError('unauthenticated', 'Please sign in first.')
-  }
-
   let searchWord = request.data?.searchWord
   const searchType = request.data?.type
 
@@ -228,9 +252,6 @@ const getEventListByIds = onCall(async (request) => {
 })
 
 const getEventById = onCall(async (request) => {
-  if (!request.auth) {
-    throw new HttpsError('unauthenticated', 'Please sign in first.')
-  }
 
   const eventId = request.data?.id ?? request.data?.eventId
   if (!eventId) {
@@ -251,9 +272,6 @@ const getEventById = onCall(async (request) => {
 })
 
 const getMapEvents = onCall(async (request) => {
-  if (!request.auth) {
-    throw new HttpsError('unauthenticated', 'Please sign in first.')
-  }
 
   try {
     const snap = await db.collection('events').get()
@@ -283,10 +301,6 @@ const getMapEvents = onCall(async (request) => {
 })
 
 const getEvents = onCall(async (request) => {
-  if (!request.auth) {
-    throw new HttpsError('unauthenticated', 'Please sign in first.')
-  }
-
   try {
     const snap = await db.collection('events').get()
     const rows = await Promise.all(
@@ -312,5 +326,5 @@ module.exports = {
   getEventListByTitle,
   saveEvent,
   modifyEvent,
-  removeEvent
+  removeEvent,
 }

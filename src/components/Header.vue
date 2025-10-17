@@ -10,35 +10,74 @@
     >
       <div v-for="link in links" :key="link.name">
         <UserDropMenu
+          :ref="(el) => (menuRefs[link.name] = el)"
           v-if="link.name === 'User' && link.children"
           @goProfile="goProfile"
           @logout="logout"
         >
           <template #trigger>
-            <span class="user-trigger">{{ link.name }}</span>
+            <div
+              class="focusable-div user-trigger"
+              tabindex="0"
+              role="button"
+              @keydown.enter="openUserMenu"
+              @keydown.space.prevent="openUserMenu"
+            >
+              {{ link.name }}
+            </div>
           </template>
+
+          <!-- <template #trigger>
+            <div class="focusable-div user-trigger">{{ link.name }}</div>
+          </template> -->
         </UserDropMenu>
 
         <RecipeDropMenu
+          :ref="(el) => (menuRefs[link.name] = el)"
           v-else-if="link.name === 'Recipes'"
           @goRecipeList="goRecipeList"
           @goFavour=""
           @goRecipeManager="goRecipeManager"
         >
           <template #trigger>
-            <span class="user-trigger">{{ link.name }}</span>
+            <div
+              class="focusable-div user-trigger"
+              tabindex="0"
+              role="button"
+              @keydown.enter="openRecipeMenu"
+              @keydown.space.prevent="openRecipeMenu"
+            >
+              {{ link.name }}
+            </div>
           </template>
+
+          <!-- <template #trigger>
+            <div class="focusable-div user-trigger">{{ link.name }}</div>
+          </template> -->
         </RecipeDropMenu>
 
         <EventDropMenu
+          :ref="(el) => (menuRefs[link.name] = el)"
           v-else-if="link.name === 'Events' && link.children"
           @goEventsList="goEventsList"
           @goEventsMap="goEventsMap"
           @goEventsManager="goEventsManager"
         >
           <template #trigger>
-            <span class="user-trigger">{{ link.name }}</span>
+            <div
+              class="focusable-div user-trigger"
+              tabindex="0"
+              role="button"
+              @keydown.enter="openEventMenu"
+              @keydown.space.prevent="openEventMenu"
+            >
+              {{ link.name }}
+            </div>
           </template>
+
+          <!-- <template #trigger>
+            <div class="focusable-div user-trigger">{{ link.name }}</div>
+          </template> -->
         </EventDropMenu>
 
         <RouterLink
@@ -46,6 +85,8 @@
           :to="link.to"
           :class="{ active: route.path === link.to }"
           @click="() => handleActive(link)"
+          @keydown.enter="handleActive(link)"
+          @keydown.space.prevent="handleActive(link)"
         >
           {{ link.name }}
         </RouterLink>
@@ -55,7 +96,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref, reactive } from 'vue'
 import { RouterLink, routerViewLocationKey, useRoute, useRouter } from 'vue-router'
 import { navConfig } from '@/config/nav'
 import { auth, db, functions } from '@/firebase'
@@ -71,6 +112,23 @@ const route = useRoute()
 const userStore = useUserStore()
 const router = useRouter()
 
+const menuRefs = reactive({})
+
+const openUserMenu = () => {
+  console.log(menuRefs['User'])
+  menuRefs['User']?.openWithDelay?.(true)
+}
+
+const openRecipeMenu = () => {
+  console.log(menuRefs['Recipes'])
+  menuRefs['Recipes']?.openWithDelay?.(true)
+}
+
+const openEventMenu = () => {
+  console.log(menuRefs['Events'])
+  menuRefs['Events']?.openWithDelay?.(true)
+}
+
 const links = computed(() => {
   const key = userStore.role || 'guest'
   console.log('key:' + key)
@@ -83,7 +141,9 @@ const toHome = () => {
 }
 
 const goProfile = () => {
-  console.log(userStore.uid)
+  console.log('uid' + userStore.uid)
+  menuRefs['User']?.openWithDelay?.(false)
+
   router.push({ name: 'Profile', params: { id: userStore.uid } })
   // router.push({ name: 'UserProfile', params: { uid: userStore.id } })
 }
@@ -104,7 +164,6 @@ const goRecipeList = () => {
   router.push({ name: 'RecipeList' })
 }
 
-const goFavour = () => {}
 
 const goEventsList = () => {
   router.push({ name: 'EventList' })
@@ -168,5 +227,15 @@ onMounted(async () => {
 <style scoped>
 .gne-header {
   background-color: #03fc90;
+}
+
+a:focus {
+  box-shadow: none !important;
+  outline: 2px solid #005fcc !important;
+}
+
+.focusable-div:focus {
+  outline: 2px solid #005fcc;
+  outline-offset: 2px;
 }
 </style>

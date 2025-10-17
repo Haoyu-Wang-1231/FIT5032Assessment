@@ -4,12 +4,22 @@
     <p><b>Author:</b> {{ recipe.author }}</p>
     <p><b>average rating:</b> {{ recipe.ratingAvg }}</p>
     <p><b>rating count:</b> {{ recipe.ratingCount }}</p>
+
+    <p><b>Difficulty:</b> {{ recipe.difficulty }}</p>
+    <div>
+      <b>Ingredients:</b>
+      <ul class="value">
+        <li v-for="(item, index) in recipe.ingredients" :key="index">{{ item }}</li>
+      </ul>
+    </div>
+
     <p><b>Description:</b> {{ recipe.description }}</p>
     <p><b>Instruction:</b> {{ recipe.instruction }}</p>
+    <div v-if="AIAnlayze"><b>AI analyze:</b> {{ AIAnlayze }}</div>
   </div>
 
   <div class="container d-flex justify-content-center" style="padding-top: 3%">
-    <div class="col-xxl-12 col-lg-12 col-md-12 col-sm-12 col-12 background">
+    <div v-if="initLoad" class="col-xxl-12 col-lg-12 col-md-12 col-sm-12 col-12 background">
       <div class="title d-flex justify-content-around pt-4">
         <div><button class="btn btn-secondary" @click="goBack">Back</button></div>
 
@@ -40,9 +50,22 @@
           <span class="label">Author:</span>
           <span class="value">{{ recipe.author }}</span>
         </div>
+        <div v-if="recipe.difficulty">
+          <span class="label">difficulty:</span>
+          <span class="value">{{ recipe.difficulty }}</span>
+        </div>
         <div v-if="recipe.author">
           <span class="label">AVG Rate:</span>
           <span class="value">{{ recipe.ratingAvg }}</span>
+        </div>
+        <div class="mt-3" v-if="recipe.ingredients">
+          <span class="label">Ingredients:</span>
+          <ul class="value">
+            <li v-for="(item, index) in recipe.ingredients" :key="index">{{ item }}</li>
+          </ul>
+
+          <!-- <span class="label">Description:</span>
+          <div class="value">{{ recipe.description }}</div> -->
         </div>
         <div class="mt-3" v-if="recipe.author">
           <span class="label">Description:</span>
@@ -53,11 +76,17 @@
           <span class="label">Instruction:</span>
           <div class="value">{{ recipe.instruction }}</div>
         </div>
+        <div class="mt-3" v-if="AIAnlayze">
+          <span class="label">AI analyze:</span>
+          <div class="value">{{ AIAnlayze }}</div>
+        </div>
 
         <!-- <div v-if="recipe"></div> -->
       </div>
       <div class="d-flex justify-content-center mt-3 mb-3">
-        <div v-if="recipe" style="width: 120px">
+        <button class="btn btn-primary" @click="recipeGenAIAnalyze">Ask for AI</button>
+
+        <div class="ms-5" v-if="recipe" style="width: 120px">
           <CommentDialog @rating="loadRecipe" :recipe="recipe.title" :recipe-id="recipe.id" />
         </div>
       </div>
@@ -72,14 +101,31 @@
           :rows="5"
           :rowsPerPageOptions="[5, 10, 20]"
         >
-          <Column field="username" header="id"></Column>
+          <Column field="username" header="username"></Column>
           <Column field="description" header="description"></Column>
           <Column field="rating" header="rating"></Column>
           <Column field="createTime" header="Post Time"></Column>
-          <Column v-if="userStore.role === 'admin'" header="Delete"></Column>
+          <Column header="Delete">
+            <template #body="{ data }">
+              <button
+                v-if="userStore.isAdmin || data.poster === userStore.uid"
+                class="btn btn-danger ms-4"
+                @click="removeComment(data)"
+                severity="secondary"
+                rounded
+              >
+                Delete
+              </button></template
+            >
+          </Column>
           <!-- createTime -->
         </DataTable>
       </div>
+    </div>
+    <div v-else class="col-xxl-12 col-lg-12 col-md-12 col-sm-12 col-12 background">
+
+      <h1>Loading</h1>
+
     </div>
   </div>
 </template>
@@ -98,6 +144,7 @@ import CommentDialog from '@/components/dialog/commentDialog.vue'
 import html2canvas from 'html2canvas'
 import jsPDF from 'jspdf'
 
+const initLoad = ref(false)
 const route = useRoute()
 const rid = ref('')
 const recipe = ref({})
@@ -106,10 +153,56 @@ const router = useRouter()
 const userStore = useUserStore()
 const favourState = ref(false)
 const showPDF = ref(false)
+const AIAnlayze = ref(null)
 
 function getRid(r = route) {
   rid.value = r.params.id
   // return String(r.params.id ?? '')
+}
+
+const formatRecipeToString = (input) => {
+  let text = `Recipe Title: ${input.title}.\n`
+
+  // Include the description, instructions, and ingredients for best analysis
+  if (input.description) text += `Description: ${input.description}\n`
+  if (input.instruction) text += `Instructions: ${input.instruction}\n`
+  if (input.ingredients && input.ingredients.length > 0) {
+    text += `Ingredients: ${input.ingredients.join(', ')}\n`
+  }
+
+  // Optional: Include time/difficulty if you think it adds context
+  text += `Prep Time: ${input.prepTime}, Difficulty: ${input.difficulty}`
+
+  return text
+}
+
+const recipeGenAIAnalyze = async () => {
+  try {
+    const call = httpsCallable(functions, 'analyzeRecipe')
+    const payload = { recipe: formatRecipeToString(recipe.value) }
+    // const payload = { rid: rid.value, comment: input }
+    // const result = await call(payload)
+    const result = await call(payload)
+    console.log(result.data)
+
+    AIAnlayze.value = result.data.nutritionData.overallEvaluation
+  } catch (err) {
+    console.log(err)
+  }
+}
+
+const removeComment = async (input) => {
+  console.log(input)
+
+  try {
+    const call = httpsCallable(functions, 'removeComment')
+    const payload = { rid: rid.value, comment: input }
+    const result = await call(payload)
+    console.log(result.data)
+    await loadRecipe()
+  } catch (err) {
+    console.log(err)
+  }
 }
 
 // export recipe data pdf
@@ -238,6 +331,7 @@ onMounted(async () => {
     await getUserInfo()
     await loadRecipe()
   }
+  initLoad.value = true
 })
 
 const goBack = () => {

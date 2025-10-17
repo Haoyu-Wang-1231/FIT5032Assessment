@@ -1,14 +1,21 @@
 <template>
-  <div class="container">
-    <div class="map-container pt-4" style="height: 500px">
-      <div
-        id="eventMap"
-        ref="mapContainer"
-        style="height: 100%; width: 100%"
-        class="map-container"
-      ></div>
+  <div class="container d-flex justify-content-center" style="padding-top: 3%">
+    <div class="col-xxl-12 col-lg-12 col-md-12 col-sm-12 col-12 background">
+      <h1 class="mapTitle mt-5 text-center">Map</h1>
+      <div class="content m-5">
+        <div class="map-container pt-4" style="height: 500px">
+          <div
+            id="eventMap"
+            ref="mapContainer"
+            style="height: 100%; width: 100%"
+            class="map-container"
+          ></div>
+        </div>
+      </div>
     </div>
   </div>
+
+  <div class="container"></div>
 </template>
 
 <script setup>
@@ -73,8 +80,8 @@ async function navigateTo(destLng, destLat) {
 
   const url = `https://api.mapbox.com/directions/v5/mapbox/${profile}/${start};${end}?geometries=geojson&access_token=${token}`
 
-//   console.log(start)
-//   console.log(end)
+  //   console.log(start)
+  //   console.log(end)
 
   try {
     // return
@@ -190,7 +197,10 @@ function initMap(center = [144.9631, -37.8136]) {
         const popup = new mapboxgl.Popup({
           closeButton: true,
           closeOnClick: false,
-        }).setDOMContent(popupContent)
+        }).setDOMContent(popupContent).on('close', ()=>{
+          popupApp.unmount()
+          popupContent.remove()
+        })
 
         new mapboxgl.Marker({ color: '#3FB1CE' }).setLngLat(loc).setPopup(popup).addTo(map)
       }
@@ -200,16 +210,24 @@ function initMap(center = [144.9631, -37.8136]) {
 
 onMounted(async () => {
   const user = await waitforAuth()
-  if (user) {
-    await loadEvents()
-  }
 
+  await loadEvents()
   initMap()
 })
 </script>
 <!-- const center = ref({ lat: -37.8136, lng: 144.9631 }) // Melbourne -->
 
 <style scoped>
+.background {
+  border-radius: 30px;
+  background-color: antiquewhite;
+}
+
+.mapTitle {
+  font-size: 60px;
+  font-weight: bold;
+}
+
 .map-container {
   height: 100%;
   width: 100%;

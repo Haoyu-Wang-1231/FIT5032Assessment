@@ -7,14 +7,7 @@
       <div class="d-flex justify-content-around align-items-center flex-column flex-sm-row">
         <div></div>
         <h1 class="mt-5 text-center">Nutrition Recipes</h1>
-        <!-- <Select 
-          style="width: 160px"
-          checkmark
-          v-model="searchType"
-          :options="selections"
-          optionLabel="name"
-          placeholder="Order By"
-        ></Select> -->
+        
         <div>
           <button @click="exportCSV" class="btn btn-primary mt-5">Export to CSV</button>
         </div>
@@ -34,7 +27,7 @@
                 <div class="p-2">
                   <button class="btn btn-primary" @click="goDetail(card.id)">Detail</button>
                   <button v-if="userStore.role === 'admin'" class="btn btn-danger ms-2" @click="deleteRecipe(card.id)">
-                    remove recipe
+                    remove
                   </button>
                 </div>
               </div>

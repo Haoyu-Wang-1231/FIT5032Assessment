@@ -53,8 +53,8 @@ const sendMail = onCall(async (req) => {
   }
 })
 
-const sendEmailFromFunctions= async(request)=>{
 
+const sendEmailFromFunctions= async(request)=>{
   const to = request.to
   const subject = request.subject
   const text = request.text

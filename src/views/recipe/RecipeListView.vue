@@ -98,6 +98,11 @@ const exportCSV = () => {
   const data = recipes.value.map((recipe) => ({
     title: recipe.title,
     author: recipe.author,
+    category: recipe.category,
+    difficulty: recipe.difficulty,
+    ingredients: Array.isArray(recipe.ingredients)
+      ? recipe.ingredients.join('; ')
+      : recipe.ingredients || '',    prepare_time: recipe.prepTime,
     description: recipe.description,
     instruction: recipe.instruction,
     average_rating: recipe.rating,
@@ -117,7 +122,7 @@ const convertToCSV = (data) => {
   const headers = Object.keys(data[0])
   const rows = data.map((obj) => headers.map((header) => obj[header]))
   const headerRow = headers.join(',')
-  const csvRows = [headerRow, ...rows.map((row) => row.join(','))]
+  const csvRows = [headerRow, ...rows.map((row) =>row.join(','))]
   return csvRows.join('\n')
 }
 

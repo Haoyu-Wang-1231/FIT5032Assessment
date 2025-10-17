@@ -1,5 +1,5 @@
 <template>
-  <div class="hover-card" @mouseenter="openWithDelay(true)" @mouseleave="openWithDelay(false)">
+  <div class="hover-card" @mouseenter="openWithDelay(true)" @mouseleave="openWithDelay(false)"  @keydown="handleKey">
     <slot name="trigger">
       <!-- <img class="avatar" src="/avatar.png" alt="avatar" /> -->
     </slot>
@@ -7,9 +7,23 @@
     <Transition name="fade-pop">
       <div v-if="open" class="menu" role="menu" :aria-expanded="open">
         <ul class="list">
-          <li @click="emit('goEventsList')">Event list</li>
+          <li
+            v-for="(item, i) in eventLabels"
+            :key="item.label"
+            ref="menuItems"
+            role="menuitem"
+            tabindex="0"
+            @keydown.enter.prevent="item.action()"
+            @keydown.space.prevent="item.action()"
+            @click="item.action()"
+          >
+            {{ item.label }}
+          </li>
+
+
+          <!-- <li @click="emit('goEventsList')">Event list</li>
           <li @click="emit('goEventsMap')">Event map</li>
-          <li v-if="userStore.role === 'admin'" @click="emit('goEventsManager')">Event Manager</li>
+          <li v-if="userStore.role === 'admin'" @click="emit('goEventsManager')">Event Manager</li> -->
         </ul>
       </div>
     </Transition>
@@ -17,20 +31,50 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { computed, ref, nextTick } from 'vue'
 import { useUserStore } from '@/store/user'
 
 const emit = defineEmits(['goEventsList', 'goEventsMap', 'goEventsManager'])
 
 const open = ref(false)
+const menuItems = ref([])
+
+
+
 let timer = null
 const userStore = useUserStore()
 
+const eventLabels = computed(()=>[
+  { label: 'Event list', show: true, action: () => emit('goEventsList') },
+  { label: 'Event map', show: true, action: () => emit('goEventsMap') },
+  { label: 'Event Manager', show: userStore.isAdmin, action: () => emit('goEventsManager') },
+].filter(item => item.show))
 
 function openWithDelay(show) {
   clearTimeout(timer)
-  timer = setTimeout(() => (open.value = show), show ? 40 : 160)
+  timer = setTimeout(
+    async () => {
+      open.value = show
+      if (show) {
+        // wait for DOM update
+        await nextTick()
+        menuItems.value[0]?.focus()
+      }
+    },
+    show ? 40 : 160,
+  )
 }
+
+function handleKey(e) {
+  if (e.key === 'Escape') {
+    openWithDelay(false)
+  }
+}
+
+defineExpose({
+  openWithDelay,
+})
+
 </script>
 
 <style scoped>

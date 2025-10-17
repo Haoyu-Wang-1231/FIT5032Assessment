@@ -26,16 +26,14 @@ const insertComment = onCall(async (request) => {
       rating,
       poster,
       description,
-      createdAt: FieldValue.serverTimestamp()
+      createdAt: FieldValue.serverTimestamp(),
     })
 
-    if(!snapshot.exists){
-      console.log("comment adding fail.")
+    if (!snapshot.exists) {
+      console.log('comment adding fail.')
     }
 
-    return {ok: true, id: snapshot.id}
-
-
+    return { ok: true, id: snapshot.id }
   } catch (error) {
     console.log(error)
   }
@@ -119,17 +117,37 @@ const saveRecipe = onCall(async (request) => {
   const data = request.data || {}
   const title = sanitizePlainText(data.title, 50)
   const author = sanitizePlainText(data.author, 20)
+  const category = sanitizePlainText(data.category, 20)
+  const difficulty = sanitizePlainText(data.difficulty, 20)
+  const instruction = sanitizePlainText(data.instruction, 250)
   const description = sanitizePlainText(data.description, 250)
   const prepTime = sanitizePlainText(data.prepTime, 50)
+  const ingredients = data.ingredients
 
-  const docRef = await db.collection('recipes').add({
+  const payload = {
     title,
     author,
+    category,
+    difficulty,
     description,
+    instruction,
     prepTime,
+    ingredients,
+    favours: [],
     createdAt: FieldValue.serverTimestamp(),
     createdBy: request.auth.uid,
-  })
+  }
+  console.log(payload)
+  const docRef = await db.collection('recipes').add(payload)
+  // const docRef = await db.collection('recipes').add({
+  //   title,
+  //   author,
+  //   description,
+  //   prepTime,
+  //   favours: [],
+  //   createdAt: FieldValue.serverTimestamp(),
+  //   createdBy: request.auth.uid,
+  // })
   logger.info(`Recipe created ${docRef.id} by ${request.auth.uid}`)
 
   return { ok: true, id: docRef.id }
@@ -222,4 +240,38 @@ const getRecipes = onCall(async (request) => {
   }
 })
 
-module.exports = { getRecipes, saveRecipe, deleteRecipe, getRecipeById, getRecipeListByIds,insertComment }
+const removeComment = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'Please sign in first.')
+  }
+
+  const recipeId = request.data.rid
+  const comment = request.data.comment
+
+  if (!recipeId || recipeId === '') {
+    throw new HttpsError('not-exist', 'The recipe id provided is not exist.')
+  }
+  console.log(recipeId)
+
+  console.log(comment.id)
+
+  try {
+    const docRef = db.collection('recipes').doc(recipeId).collection('comments').doc(comment.id)
+    const snap = await docRef.delete()
+    // const commentsSnap = await db.collection('recipes').doc(doc.id).collection('comments').get()
+
+    return { success: true }
+  } catch (error) {
+    throw new HttpsError('internal', error.message)
+  }
+})
+
+module.exports = {
+  getRecipes,
+  saveRecipe,
+  deleteRecipe,
+  getRecipeById,
+  getRecipeListByIds,
+  insertComment,
+  removeComment,
+}

@@ -6,7 +6,7 @@
         <h1 class="eventTitle">{{ eventData.title }}</h1>
         <div>
           <button
-            v-if="!registedState"
+            v-if="!registedState && userStore.isSignedIn"
             class="btn btn-primary"
             style="width: 120px"
             @click="registerStateChange(true)"
@@ -14,7 +14,7 @@
             Register
           </button>
           <button
-            v-else
+            v-if="registedState && userStore.isSignedIn"
             class="btn btn-secondary"
             style="width: 120px"
             @click="registerStateChange(false)"
@@ -95,12 +95,6 @@ const location = computed(() => {
   return [lng, lat]
 })
 
-const eventDate = computed(() => {
-  const time = formatYMDHMS(toJsDate(eventData.value.date)) ?? null
-
-  return time
-})
-
 function getEid(r = route) {
   eid.value = r.params.id
   // return String(r.params.id ?? '')
@@ -148,7 +142,7 @@ const registerStateChange = async (state) => {
 
     console.log('result:')
     console.log(result.data.newDoc)
-    const registerList = result.data.newDoc.registedEvent
+    const registerList = result.data.newDoc.event.registers
     if (registerList.includes(eid.value)) {
       registedState.value = true
     } else {
@@ -187,6 +181,7 @@ const registerStateChange = async (state) => {
     }
     const result = await call(payload)
     console.log(result.data)
+    registedState.value = state
     // console.log(imgData)
   }
 }
@@ -209,13 +204,6 @@ const getUserInfo = async () => {
     console.log(e)
   }
 }
-
-// watch(location, (loc) => {
-//   if (map && loc) {
-//     map.flyTo({ center: loc, zoom: 13 })
-//     new mapboxgl.Marker().setLngLat(loc).addTo(map)
-//   }
-// })
 
 function initMap(center = [144.9631, -37.8136]) {
   mapboxgl.accessToken = token
@@ -241,12 +229,12 @@ onMounted(async () => {
   const user = await waitforAuth()
 
   getEid()
+  await loadEvent()
   if (user) {
     // console.log('User is signed in: ', user.email)
     // await userStore.setUser(user.uid, user.email)
     // await loadRecipes()
 
-    await loadEvent()
     await getUserInfo()
   }
   initMap()

@@ -167,6 +167,12 @@ const modifyEvent = async () => {
         return
       }
     }
+    const now = new Date()
+    if(payload.date < now){
+      alert('Time invalid')
+      return
+    }
+
     if (payload.lat > 90 || payload.lat < -90) {
       alert('Latitude must be between -90 and 90.')
       return
@@ -181,9 +187,7 @@ const modifyEvent = async () => {
     const result = await call(payload)
     console.log(result.data)
 
-    // const call = httpsCallable(functions, 'getEvents')
-    // const result = await call()
-    // console.log(payload)
+
     visible.value = false;
     emit('eventSaved')
   } catch (err) {

@@ -17,17 +17,123 @@
         </div>
       </div>
 
-      <div class="recipes">
-        <div class="favourTitle ms-5">Favour Recipes</div>
+      <div v-if="userStore.isAdmin" class="recipes">
+        <div class="favourTitle ms-5">Recipes overview</div>
+        <DataTable
+          :value="recipesList"
+          class="m-3"
+          paginator
+          removableSort
+          :rows="5"
+          :rowsPerPageOptions="[5, 10, 20]"
+        >
+          <Column field="title" sortable header="title"></Column>
+          <Column field="favours.length()" sortable header="favours">
+            <template #body="data">
+              {{ data.data.favours.length }}
+            </template>
+          </Column>
+          <Column field="author" sortable header="author"></Column>
+          <Column field="prepTime" header="prepare time"></Column>
+          <Column field="description" header="description"></Column>
+          <Column field="instruction" header="instruction"></Column>
+          <Column class="w-24 !text-end">
+            <template #body="{ data }">
+              <button
+                class="btn btn-primary ms-4"
+                @click="selectRecipe(data)"
+                severity="secondary"
+                rounded
+              >
+                Check
+              </button>
+            </template>
+          </Column>
+        </DataTable>
+      </div>
+
+      <div v-if="userStore.isAdmin" class="registEvent">
+        <div class="eventTitle ms-5">Events Manager</div>
+        <DataTable
+          :value="eventsList"
+          class="m-3"
+          paginator
+          removableSort
+          :rows="5"
+          :rowsPerPageOptions="[5, 10, 20]"
+        >
+          <Column field="title" sortable header="title"></Column>
+          <Column header="Registers" sortable>
+            <template #body="data">
+              {{ data.registers ? data.registers.length : 0 }}
+            </template>
+          </Column>
+          <!-- <Column header="Registers">
+            <template #body="data">
+              {{ data.data.registers.length || 0 }}
+            </template>
+          </Column> -->
+          <Column field="organizer" sortable header="organizer"></Column>
+          <Column field="category" sortable header="Category"></Column>
+          <Column field="description" header="description">
+            <template #body="{ data }">{{ data.description || 'null' }}</template>
+          </Column>
+          <Column field="displayDate" sortable header="Date"></Column>
+          <Column class="w-24 !text-end">
+            <template #body="{ data }">
+              <button
+                class="btn btn-primary ms-4"
+                @click="selectEvent(data)"
+                severity="secondary"
+                rounded
+              >
+                View
+              </button>
+            </template>
+          </Column>
+        </DataTable>
+      </div>
+
+      <div v-if="userStore.isAdmin" class="recipes">
+        <div class="favourTitle ms-5">User Infomation</div>
+        <DataTable
+          :value="usersList"
+          class="m-3"
+          paginator
+          removableSort
+          :rows="5"
+          :rowsPerPageOptions="[5, 10, 20]"
+        >
+          <Column field="username" sortable header="username"></Column>
+          <Column field="email" sortable header="email"></Column>
+          <Column field="displayDate" sortable header="created at"></Column>
+          <Column field="role" sortable header="role"></Column>
+          <Column header="registed events" sortable>
+            <template #body="data">
+              {{ data.data.registedEvent ? data.data.registedEvent.length : 0 }}
+            </template>
+          </Column>
+          <Column header="favour recipe" sortable>
+            <template #body="data">
+              {{ data.data.favourRecipe ? data.data.favourRecipe.length : 0 }}
+            </template>
+          </Column>
+        </DataTable>
+      </div>
+
+      <div class="users">
+        <div class="eventTitle ms-5">Favour Recipes</div>
         <DataTable
           :value="favourRecipes"
           class="m-3"
           paginator
           :rows="5"
+          removableSort
           :rowsPerPageOptions="[5, 10, 20]"
         >
-          <Column field="title" header="title"></Column>
-          <Column field="author" header="author"></Column>
+          <Column field="title" sortable header="title"></Column>
+
+          <Column field="author" sortable header="author"></Column>
           <Column field="prepTime" header="prepare time"></Column>
           <Column field="description" header="description"></Column>
           <Column field="instruction" header="instruction"></Column>
@@ -52,16 +158,17 @@
           :value="events"
           class="m-3"
           paginator
+          removableSort
           :rows="5"
           :rowsPerPageOptions="[5, 10, 20]"
         >
-          <Column field="title" header="title"></Column>
-          <Column field="organizer" header="organizer"></Column>
-          <Column field="category" header="Category"></Column>
+          <Column field="title" sortable header="title"></Column>
+          <Column field="organizer" sortable header="organizer"></Column>
+          <Column field="category" sortable header="Category"></Column>
           <Column field="description" header="description">
             <template #body="{ data }">{{ data.description || 'null' }}</template>
           </Column>
-          <Column field="displayDate" header="Date"></Column>
+          <Column field="displayDate" sortable header="Date"></Column>
           <Column class="w-24 !text-end">
             <template #body="{ data }">
               <button
@@ -94,8 +201,18 @@ const userStore = useUserStore()
 const events = ref([])
 const favourRecipes = ref([])
 
+//admin used
+const recipesList = ref([])
+const eventsList = ref([])
+const usersList = ref([])
+
 const userInfo = ref({})
 const router = useRouter()
+
+const printting = (input)=>{
+  console.log(input)
+}
+
 
 const selectRecipe = (data) => {
   console.log('jump to: ', data.id)
@@ -107,9 +224,6 @@ const selectEvent = (data) => {
   router.push({ name: 'EventDetails', params: { id: data.id } })
   // router.push({ name: 'Profile', params: { id: userStore.uid } })
 }
-// const displayDate = computed(() => {
-//   return formatYMDHMS(toJsDate(props.event.date))
-// })
 
 const getRegistedEvents = async () => {
   // const eventIdList = request.data?.idList
@@ -167,10 +281,41 @@ async function loadUserInfo() {
   }
 }
 
+const adminLoad = async () => {
+  try {
+    const eventCall = httpsCallable(functions, 'getEvents')
+    const eventResult = await eventCall()
+    eventsList.value = eventResult.data
+    eventsList.value.map((record) => {
+      record.displayDate = formatYMDHMS(toJsDate(record.date))
+    })
+    const recipeCall = httpsCallable(functions, 'getRecipes')
+    const recipeResult = await recipeCall()
+    recipesList.value = recipeResult.data
+
+    // getUsers
+    const userCall = httpsCallable(functions, 'getUsers')
+    const userResult = await userCall()
+    usersList.value = userResult.data
+    usersList.value.map((record) => {
+      record.displayDate = formatYMDHMS(toJsDate(record.createdAt))
+    })
+    console.log("userlist")
+
+    console.log(usersList.value[0].registedEvent.length)
+  } catch (e) {
+    console.log(e)
+  }
+}
+
 onMounted(async () => {
   const user = await waitforAuth()
   if (user) {
     console.log('User is signed in: ', user.email)
+
+    if (userStore.isAdmin) {
+      await adminLoad()
+    }
     await loadUserInfo()
   }
 })

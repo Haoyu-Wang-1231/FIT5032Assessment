@@ -13,6 +13,8 @@ import RecipeDetailView from '@/views/recipe/RecipeDetailView.vue'
 import { useUserStore } from '@/store/user'
 import RecipeManagerView from '@/views/recipe/RecipeManagerView.vue'
 import EventManageView from '@/views/event/EventManageView.vue'
+import getEventsAPI from '@/api/getEventsAPI.vue'
+import getRecipesAPI from '@/api/getRecipesAPI.vue'
 import { auth } from '@/firebase'
 
 const routes = [
@@ -42,7 +44,7 @@ const routes = [
   //user
   {
     path: '/user',
-    meta: { navkey: 'viewer', hidden: true },
+    meta: { navkey: 'viewer' },
     children: [
       {
         path: 'profile/uid=:id',
@@ -71,7 +73,7 @@ const routes = [
   },
   {
     path: '/events',
-    meta: { navkey: 'viewer', hidden: true },
+    meta: { navkey: 'viewer' },
     children: [
       { path: 'eid=:id', name: 'EventDetails', props: true, component: EventDetailView },
       { path: 'list', name: 'EventList', component: EventsView },
@@ -80,6 +82,22 @@ const routes = [
 
     ],
   },
+  // api
+
+  {
+    path:'/getEventsList',
+    name: 'GetEventList',
+    component: getEventsAPI,
+    meta: {hidden: true}
+  },
+  {
+    path: '/getRecipesList',
+    name: 'GetRecipesList',
+    component: getRecipesAPI,
+    meta: {hidden: true}
+
+  }
+
 ]
 
 const router = createRouter({
@@ -87,16 +105,5 @@ const router = createRouter({
   routes: routes,
 })
 
-router.beforeEach(async (to) => {
-  const userStore = useUserStore()
-
-  // const authLink = ['Login', 'Register', 'Home']
-
-  // console.log('to: ' + to.name)
-  // if (!authLink.includes(to.name) && userStore.uid) {
-
-  //   console.log(userStore.uid)
-  // }
-})
 
 export default router

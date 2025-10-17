@@ -152,8 +152,9 @@ const submitRegister = async () => {
       email: userCredential.user.email,
       username: formData.value.username,
     }
+    console.log(payload)
+
     const result = await call(payload)
-    console.log(result.data)
     formData.value.username = ''
     formData.value.email = ''
     formData.value.password = ''

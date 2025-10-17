@@ -1,3 +1,41 @@
+<template>
+  <div class="container d-flex justify-content-center" style="padding-top: 10%">
+    <div class="col-xxl-8 col-lg-8 col-md-8 col-sm-10 col-10 background">
+      <h1 class="mt-5 text-center">Login</h1>
+      <div class="d-flex justify-content-center">
+        <form class="col-xxl-6 col-lg-6 col-md-7 col-sm-8 col-10" @submit.prevent="submitLogin">
+          <div class="mb-3">
+            <label for="email" class="form-label">user name</label>
+            <input type="text" class="form-control" v-model="formData.email" id="email" />
+            <div v-if="errors.email" class="text-danger">{{ errors.email }}</div>
+            <!-- <input type="text" class="form-control" id="username" @blur="() => validateName(true)"
+                            @input="() => validateName(false)" v-model="formData.username">
+                        <div v-if="errors.username" class="text-danger">{{ errors.username }}</div> -->
+          </div>
+          <div class="mb-3">
+            <label for="password" class="form-label">password</label>
+            <input type="text" class="form-control" v-model="formData.password" id="password" />
+            <div v-if="errors.password" class="text-danger">{{ errors.password }}</div>
+          </div>
+
+          <div class="text-center">
+            <button type="button" @click="registering" class="btn btn-secondary me-3 mb-3">
+              Register
+            </button>
+            <button type="submit" class="btn btn-primary me-3 mb-3">Login</button>
+            <button type="button" @click="justLogin" class="btn btn-primary me-3 mb-3">
+              just login
+            </button>
+            <button type="button" @click="justAdmin" class="btn btn-primary me-3 mb-3">
+              just admin
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</template>
+
 <script setup>
 import { ref } from 'vue'
 import router from '@/router'
@@ -94,13 +132,13 @@ async function justLogin() {
   }
 
   if (errors.value == '') {
-    router.push({ name: 'Home' })
+    // router.push({ name: 'Home' })
   }
 }
 
 async function justAdmin() {
   try {
-    const userCredential = await signInWithEmailAndPassword(auth, 'admin@qq.com', 'Harland123#')
+    const userCredential = await signInWithEmailAndPassword(auth, 'hwan0328@student.monash.edu', 'Harland123#')
 
     // await getUser(userCredential.user.email)
     // userStore.setUser(auth.currentUser.uid, auth.currentUser.email, notes.value[0].role)
@@ -119,43 +157,7 @@ async function justAdmin() {
 }
 </script>
 
-<template>
-  <div class="container d-flex justify-content-center" style="padding-top: 10%">
-    <div class="col-xxl-8 col-lg-8 col-md-8 col-sm-10 col-10 background">
-      <h1 class="mt-5 text-center">Login</h1>
-      <div class="d-flex justify-content-center">
-        <form class="col-xxl-6 col-lg-6 col-md-7 col-sm-8 col-10" @submit.prevent="submitLogin">
-          <div class="mb-3">
-            <label for="email" class="form-label">user name</label>
-            <input type="text" class="form-control" v-model="formData.email" id="email" />
-            <div v-if="errors.email" class="text-danger">{{ errors.email }}</div>
-            <!-- <input type="text" class="form-control" id="username" @blur="() => validateName(true)"
-                            @input="() => validateName(false)" v-model="formData.username">
-                        <div v-if="errors.username" class="text-danger">{{ errors.username }}</div> -->
-          </div>
-          <div class="mb-3">
-            <label for="password" class="form-label">password</label>
-            <input type="text" class="form-control" v-model="formData.password" id="password" />
-            <div v-if="errors.password" class="text-danger">{{ errors.password }}</div>
-          </div>
 
-          <div class="text-center">
-            <button type="button" @click="registering" class="btn btn-secondary me-3 mb-3">
-              Register
-            </button>
-            <button type="submit" class="btn btn-primary me-3 mb-3">Login</button>
-            <button type="button" @click="justLogin" class="btn btn-primary me-3 mb-3">
-              just login
-            </button>
-            <button type="button" @click="justAdmin" class="btn btn-primary me-3 mb-3">
-              just admin
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-</template>
 
 <style scoped>
 .background {

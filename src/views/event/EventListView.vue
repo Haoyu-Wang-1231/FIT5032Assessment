@@ -1,6 +1,8 @@
 <template>
   <div class="container" style="padding-top: 3%">
     <div class="pt-5 pb-5 background">
+      <h1 class="EventTitle text-center mb-5">Events</h1>
+
       <div class="d-flex justify-content-center align-items-center flex-column flex-sm-row">
         <Select
           style="width: 160px"
@@ -46,7 +48,6 @@
             <template #body="{ data }">{{ data.description || 'null' }}</template>
           </Column>
           <Column field="displayDate" sortable header="Date"></Column>
-
         </DataTable>
       </div>
     </div>
@@ -65,7 +66,7 @@ import InputText from 'primevue/inputtext'
 import { DataTable, Column, Select } from 'primevue'
 import { toJsDate, formatYMDHMS } from '@/utils/datetime'
 import { useRoute, useRouter } from 'vue-router'
- 
+
 const events = ref([])
 const searchWord = ref('')
 const searchType = ref('')
@@ -103,9 +104,8 @@ onMounted(async () => {
   const user = await waitforAuth()
   if (user) {
     console.log('User is signed in: ', user.email)
-
-    await loadEvents()
   }
+  await loadEvents()
 })
 
 const search = async () => {
@@ -133,5 +133,10 @@ const selectRow = (event) => {
 .background {
   border-radius: 30px;
   background-color: antiquewhite;
+}
+
+.EventTitle {
+  font-size: 60px;
+  font-weight: bold;
 }
 </style>
