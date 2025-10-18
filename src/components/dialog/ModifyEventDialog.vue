@@ -1,6 +1,6 @@
 <template>
-  <div class="card flex justify-center">
-    <button class="btn btn-primary" label="Show" @click="visible = true">Modify</button>
+  <div class="card flex justify-center" style="width: 120px;">
+    <button class="btn btn-primary"  label="Show" @click="visible = true">Modify</button>
     <Dialog
       class="col-xxl-4 col-lg-6 col-md-8 col-sm-10 col-12"
       v-model:visible="visible"

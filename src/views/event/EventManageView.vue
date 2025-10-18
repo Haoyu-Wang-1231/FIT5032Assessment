@@ -56,7 +56,7 @@
           <Column class="w-24 !text-end">
             <template #body="{ data }">
               <ModifyEventDialog :id="data.id" @eventSaved="reloadEvents"></ModifyEventDialog>
-              <button @click="removeEvent(data.id)" class="btn btn-danger">Remove</button>
+              <button @click="removeEvent(data.id)" style="width: 120px;" class="btn btn-danger">Remove</button>
 
               <!-- <button
                 class="btn btn-primary ms-4"
