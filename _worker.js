@@ -2,21 +2,52 @@ export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url)
 
-    // Forward /api/* requests to Firebase Functions
-    if (url.pathname.startsWith('/api/')) {
-      const targetPath = url.pathname.replace('/api', '')
-      const firebaseURL = `https://australia-southeast1-fit5032-assessment.cloudfunctions.net${targetPath}`
+    if (url.pathname === '/getRecipesList') {
+      const firebaseURL = 'https://getrecipesapi-jdbghckipq-ts.a.run.app'
 
-      const newRequest = new Request(firebaseURL, {
-        method: request.method,
-        headers: request.headers,
-        body: request.method !== 'GET' ? await request.text() : undefined,
-      })
+      try {
+        const response = await fetch(firebaseURL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({}),
+        })
 
-      return fetch(newRequest)
+        const json = await response.json()
+
+        return new Response(JSON.stringify(json.data || json, null, 2), {
+          headers: { 'Content-Type': 'application/json; charset=utf-8' },
+        })
+      } catch (err) {
+        return new Response(JSON.stringify({ error: err.message }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        })
+      }
     }
 
-    // Otherwise, serve the normal Vue app assets
+    if (url.pathname === '/getEventsList') {
+      const firebaseURL = 'https://geteventsapi-jdbghckipq-ts.a.run.app'
+
+      try {
+        const response = await fetch(firebaseURL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({}),
+        })
+
+        const json = await response.json()
+
+        return new Response(JSON.stringify(json.data || json, null, 2), {
+          headers: { 'Content-Type': 'application/json; charset=utf-8' },
+        })
+      } catch (err) {
+        return new Response(JSON.stringify({ error: err.message }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        })
+      }
+    }
+
     return env.ASSETS.fetch(request)
   },
 }
