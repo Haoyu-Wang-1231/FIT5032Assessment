@@ -30,7 +30,8 @@
           <Column field="title" sortable header="title"></Column>
           <Column field="favours.length()" sortable header="favours">
             <template #body="data">
-              {{ data.data.favours.length }}
+              <!-- {{ data.data.favours.length }} -->
+              {{ data.data.favours ? data.data.favours.length : 0 }}
             </template>
           </Column>
           <Column field="author" sortable header="author"></Column>
@@ -65,7 +66,7 @@
           <Column field="title" sortable header="title"></Column>
           <Column header="Registers" sortable>
             <template #body="data">
-              {{ data.registers ? data.registers.length : 0 }}
+              {{ data.data.registers ? data.data.registers.length : 0 }}
             </template>
           </Column>
           <!-- <Column header="Registers">
