@@ -18,7 +18,7 @@ const app = initializeApp(firebaseConfig)
 const auth = getAuth(app)
 auth.setPersistence(browserLocalPersistence)
 
-const db = getFirestore(app)
+const db = getFirestore(undefined, 'fit5032assessment')
 const functions = getFunctions(app, 'australia-southeast1')
 
 const useEmu = import.meta.env.VITE_USE_EMULATORS === 'true'

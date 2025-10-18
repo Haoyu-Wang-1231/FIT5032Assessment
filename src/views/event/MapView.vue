@@ -31,7 +31,7 @@ import { onAuthStateChanged } from 'firebase/auth'
 import { httpsCallable } from 'firebase/functions'
 import EventMapCard from '@/components/EventMapCard.vue'
 import mapboxgl from 'mapbox-gl'
-import { RouterLink, routerViewLocationKey, useRoute, useRouter } from 'vue-router'
+import { RouterLink, onBeforeRouteLeave, useRoute, useRouter } from 'vue-router'
 
 import { auth, functions } from '@/firebase'
 const router = useRouter()
@@ -44,6 +44,10 @@ const userLocation = ref({})
 
 const mapContainer = ref(null)
 let map = null
+let popup = null
+let popupApp = null
+
+
 
 function waitforAuth() {
   return new Promise((resolve) => {
@@ -190,17 +194,14 @@ function initMap(center = [144.9631, -37.8136]) {
         const loc = [record.lng, record.lat]
 
         const popupContent = document.createElement('div')
-        const popupApp = createApp(EventMapCard, { event: record, onNavigate: navigateTo })
+        popupApp = createApp(EventMapCard, { event: record, onNavigate: navigateTo })
         popupApp.use(router)
         popupApp.mount(popupContent)
 
-        const popup = new mapboxgl.Popup({
+        popup = new mapboxgl.Popup({
           closeButton: true,
           closeOnClick: false,
-        }).setDOMContent(popupContent).on('close', ()=>{
-          popupApp.unmount()
-          popupContent.remove()
-        })
+        }).setDOMContent(popupContent)
 
         new mapboxgl.Marker({ color: '#3FB1CE' }).setLngLat(loc).setPopup(popup).addTo(map)
       }
@@ -214,6 +215,18 @@ onMounted(async () => {
   await loadEvents()
   initMap()
 })
+
+router.afterEach(() => {
+  if (popupApp) {
+    popupApp.unmount()
+    popupApp = null
+  }
+  if (popup) {
+    popup.remove()
+    popup = null
+  }
+})
+
 </script>
 <!-- const center = ref({ lat: -37.8136, lng: 144.9631 }) // Melbourne -->
 

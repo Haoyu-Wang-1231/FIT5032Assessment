@@ -5,7 +5,7 @@ const { onCall, HttpsError } = require('firebase-functions/v2/https')
 const analyzeRecipe = onCall(async (request) => {
   const { GoogleGenAI, Type } = await import('@google/genai')
   const GEMINI_API_KEY = process.env.GEMINI_KEY
-  const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY })
+  const ai = new GoogleGenAI({ apiKey: "AIzaSyAze_Syac7Rrns-afYjPOmEZlUpEKac14k" })
 
   const nutritionSchema = {
     type: Type.OBJECT,

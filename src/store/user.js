@@ -13,7 +13,6 @@ export const useUserStore = defineStore(
     const uid = ref(null)
     const email = ref(null)
     const role = ref('guest')
-    const claims = ref({})
     const username = ref(null)
     const isSignedIn = computed(() => !!uid.value)
     const isAdmin = computed(() => role.value === 'admin')
@@ -31,37 +30,31 @@ export const useUserStore = defineStore(
       const result = await call(payload)
       if (!result.data.exists) {
         console.log('not exist')
-
         username.value = null
         return
       }
 
       username.value = result.data.profile.username
+      role.value = result.data.profile.role
+      console.log('usre role: ' + role.value)
+
       console.log('finish user functions')
     }
 
     async function refreshPermissions(force = false) {
       if (!auth.currentUser) {
         role.value = 'guest'
-        claims.value = {}
         return
       }
 
-      const token = await getIdTokenResult(auth.currentUser, force)
-      claims.value = token.claims || {}
-      role.value = claims.value.role || 'viewer'
-
-      // Default to 'viewer' if no role is set
+      console.log(auth.currentUser.uid)
+      await getUserName(auth.currentUser.uid)
+      // const token = await getIdTokenResult(auth.currentUser, force)
+      // console.log('auth')
+      // console.log(token)
+        
     }
 
-    onAuthStateChanged(auth, async (u) => {
-      user.value = u
-      if (u) {
-        refreshPermissions(true)
-      } else {
-        role.value = 'guest'
-      }
-    })
 
     onIdTokenChanged(auth, () => {
       refreshPermissions()
@@ -82,7 +75,6 @@ export const useUserStore = defineStore(
           uid.value = null
           email.value = null
           role.value = 'guest'
-          claims.value = {}
         }
       })
     }

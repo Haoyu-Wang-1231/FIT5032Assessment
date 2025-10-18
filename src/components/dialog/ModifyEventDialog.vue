@@ -153,6 +153,7 @@ const modifyEvent = async () => {
       date: event.value.newDate,
       lat: parseFloat(event.value.lat),
       lng: parseFloat(event.value.lng),
+      isAdmin: userStore.isAdmin
     }
 
     for (const [key, value] of Object.entries(payload)) {

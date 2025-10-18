@@ -1,131 +1,131 @@
 <template>
-  <div id="pdfContent" v-if="showPDF" class="card p-4 shadow">
-    <h1>{{ recipe.title }}</h1>
-    <p><b>Author:</b> {{ recipe.author }}</p>
-    <p><b>average rating:</b> {{ recipe.ratingAvg }}</p>
-    <p><b>rating count:</b> {{ recipe.ratingCount }}</p>
+  <div>
+    <div id="pdfContent" v-if="showPDF" class="card p-4 shadow">
+      <h1>{{ recipe.title }}</h1>
+      <p><b>Author:</b> {{ recipe.author }}</p>
+      <p><b>average rating:</b> {{ recipe.ratingAvg }}</p>
+      <p><b>rating count:</b> {{ recipe.ratingCount }}</p>
 
-    <p><b>Difficulty:</b> {{ recipe.difficulty }}</p>
-    <div>
-      <b>Ingredients:</b>
-      <ul class="value">
-        <li v-for="(item, index) in recipe.ingredients" :key="index">{{ item }}</li>
-      </ul>
+      <p><b>Difficulty:</b> {{ recipe.difficulty }}</p>
+      <div>
+        <b>Ingredients:</b>
+        <ul class="value">
+          <li v-for="(item, index) in recipe.ingredients" :key="index">{{ item }}</li>
+        </ul>
+      </div>
+
+      <p><b>Description:</b> {{ recipe.description }}</p>
+      <p><b>Instruction:</b> {{ recipe.instruction }}</p>
+      <div v-if="AIAnlayze"><b>AI analyze:</b> {{ AIAnlayze }}</div>
     </div>
 
-    <p><b>Description:</b> {{ recipe.description }}</p>
-    <p><b>Instruction:</b> {{ recipe.instruction }}</p>
-    <div v-if="AIAnlayze"><b>AI analyze:</b> {{ AIAnlayze }}</div>
-  </div>
+    <div class="container d-flex justify-content-center" style="padding-top: 3%">
+      <div v-if="initLoad" class="col-xxl-12 col-lg-12 col-md-12 col-sm-12 col-12 background">
+        <div class="title d-flex justify-content-around pt-4">
+          <div><button class="btn btn-secondary" @click="goBack">Back</button></div>
 
-  <div class="container d-flex justify-content-center" style="padding-top: 3%">
-    <div v-if="initLoad" class="col-xxl-12 col-lg-12 col-md-12 col-sm-12 col-12 background">
-      <div class="title d-flex justify-content-around pt-4">
-        <div><button class="btn btn-secondary" @click="goBack">Back</button></div>
-
-        <h1>{{ recipe.title }}</h1>
-        <div>
-          <button class="btn btn-primary me-2" @click="exportRecipe">Export</button>
-          <button
-            v-if="!favourState"
-            class="btn btn-primary"
-            style="width: 120px"
-            @click="favourStateChange(true)"
-          >
-            Favour
-          </button>
-          <button
-            v-else
-            class="btn btn-secondary"
-            style="width: 120px"
-            @click="favourStateChange(true)"
-          >
-            Unfavour
-          </button>
-          <!-- <button v-else class="btn btn-secondary" style="width: 120px" @click="registerStateChange(false)">UnRegister</button> -->
-        </div>
-      </div>
-      <div class="ms-5 mt-3">
-        <div v-if="recipe.author">
-          <span class="label">Author:</span>
-          <span class="value">{{ recipe.author }}</span>
-        </div>
-        <div v-if="recipe.difficulty">
-          <span class="label">difficulty:</span>
-          <span class="value">{{ recipe.difficulty }}</span>
-        </div>
-        <div v-if="recipe.author">
-          <span class="label">AVG Rate:</span>
-          <span class="value">{{ recipe.ratingAvg }}</span>
-        </div>
-        <div class="mt-3" v-if="recipe.ingredients">
-          <span class="label">Ingredients:</span>
-          <ul class="value">
-            <li v-for="(item, index) in recipe.ingredients" :key="index">{{ item }}</li>
-          </ul>
-
-          <!-- <span class="label">Description:</span>
-          <div class="value">{{ recipe.description }}</div> -->
-        </div>
-        <div class="mt-3" v-if="recipe.author">
-          <span class="label">Description:</span>
-          <div class="value">{{ recipe.description }}</div>
-        </div>
-
-        <div class="mt-3" v-if="recipe.author">
-          <span class="label">Instruction:</span>
-          <div class="value">{{ recipe.instruction }}</div>
-        </div>
-        <div class="mt-3" v-if="AIAnlayze">
-          <span class="label">AI analyze:</span>
-          <div class="value">{{ AIAnlayze }}</div>
-        </div>
-
-        <!-- <div v-if="recipe"></div> -->
-      </div>
-      <div class="d-flex justify-content-center mt-3 mb-3">
-        <button class="btn btn-primary" @click="recipeGenAIAnalyze">Ask for AI</button>
-
-        <div class="ms-5" v-if="recipe" style="width: 120px">
-          <CommentDialog @rating="loadRecipe" :recipe="recipe.title" :recipe-id="recipe.id" />
-        </div>
-      </div>
-
-      <div class="comments" v-if="comments.length > 0">
-        <div class="commentTitle ms-5">Comments:</div>
-
-        <DataTable
-          :value="comments"
-          class="m-3"
-          paginator
-          :rows="5"
-          :rowsPerPageOptions="[5, 10, 20]"
-        >
-          <Column field="username" header="username"></Column>
-          <Column field="description" header="description"></Column>
-          <Column field="rating" header="rating"></Column>
-          <Column field="createTime" header="Post Time"></Column>
-          <Column header="Delete">
-            <template #body="{ data }">
-              <button
-                v-if="userStore.isAdmin || data.poster === userStore.uid"
-                class="btn btn-danger ms-4"
-                @click="removeComment(data)"
-                severity="secondary"
-                rounded
-              >
-                Delete
-              </button></template
+          <h1>{{ recipe.title }}</h1>
+          <div>
+            <button class="btn btn-primary me-2" @click="exportRecipe">Export</button>
+            <button
+              v-if="!favourState"
+              class="btn btn-primary"
+              style="width: 120px"
+              @click="favourStateChange(true)"
             >
-          </Column>
-          <!-- createTime -->
-        </DataTable>
+              Favour
+            </button>
+            <button
+              v-else
+              class="btn btn-secondary"
+              style="width: 120px"
+              @click="favourStateChange(true)"
+            >
+              Unfavour
+            </button>
+            <!-- <button v-else class="btn btn-secondary" style="width: 120px" @click="registerStateChange(false)">UnRegister</button> -->
+          </div>
+        </div>
+        <div class="ms-5 mt-3">
+          <div v-if="recipe.author">
+            <span class="label">Author:</span>
+            <span class="value">{{ recipe.author }}</span>
+          </div>
+          <div v-if="recipe.difficulty">
+            <span class="label">difficulty:</span>
+            <span class="value">{{ recipe.difficulty }}</span>
+          </div>
+          <div v-if="recipe.author">
+            <span class="label">AVG Rate:</span>
+            <span class="value">{{ recipe.ratingAvg }}</span>
+          </div>
+          <div class="mt-3" v-if="recipe.ingredients">
+            <span class="label">Ingredients:</span>
+            <ul class="value">
+              <li v-for="(item, index) in recipe.ingredients" :key="index">{{ item }}</li>
+            </ul>
+
+            <!-- <span class="label">Description:</span>
+          <div class="value">{{ recipe.description }}</div> -->
+          </div>
+          <div class="mt-3" v-if="recipe.author">
+            <span class="label">Description:</span>
+            <div class="value">{{ recipe.description }}</div>
+          </div>
+
+          <div class="mt-3" v-if="recipe.author">
+            <span class="label">Instruction:</span>
+            <div class="value">{{ recipe.instruction }}</div>
+          </div>
+          <div class="mt-3" v-if="AIAnlayze">
+            <span class="label">AI analyze:</span>
+            <div class="value">{{ AIAnlayze }}</div>
+          </div>
+
+          <!-- <div v-if="recipe"></div> -->
+        </div>
+        <div class="d-flex justify-content-center mt-3 mb-3">
+          <button class="btn btn-primary" @click="recipeGenAIAnalyze">Ask for AI</button>
+
+          <div class="ms-5" v-if="recipe" style="width: 120px">
+            <CommentDialog @rating="loadRecipe" :recipe="recipe.title" :recipe-id="recipe.id" />
+          </div>
+        </div>
+
+        <div class="comments" v-if="comments.length > 0">
+          <div class="commentTitle ms-5">Comments:</div>
+
+          <DataTable
+            :value="comments"
+            class="m-3"
+            paginator
+            :rows="5"
+            :rowsPerPageOptions="[5, 10, 20]"
+          >
+            <Column field="username" header="username"></Column>
+            <Column field="description" header="description"></Column>
+            <Column field="rating" header="rating"></Column>
+            <Column field="createTime" header="Post Time"></Column>
+            <Column header="Delete">
+              <template #body="{ data }">
+                <button
+                  v-if="userStore.isAdmin || data.poster === userStore.uid"
+                  class="btn btn-danger ms-4"
+                  @click="removeComment(data)"
+                  severity="secondary"
+                  rounded
+                >
+                  Delete
+                </button></template
+              >
+            </Column>
+            <!-- createTime -->
+          </DataTable>
+        </div>
       </div>
-    </div>
-    <div v-else class="col-xxl-12 col-lg-12 col-md-12 col-sm-12 col-12 background">
-
-      <h1>Loading</h1>
-
+      <div v-else class="col-xxl-12 col-lg-12 col-md-12 col-sm-12 col-12 background">
+        <h1>Loading</h1>
+      </div>
     </div>
   </div>
 </template>

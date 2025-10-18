@@ -118,6 +118,7 @@ const saveEvent = async () => {
       date: event.value.date,
       lat: parseFloat(event.value.latitude),
       lng: parseFloat(event.value.longitude),
+      isAdmin: userStore.isAdmin
     }
     
 
@@ -148,6 +149,7 @@ const saveEvent = async () => {
       return
     }
     console.log(payload)
+    console.log(userStore.isAdmin)
 
     const call = httpsCallable(functions, 'saveEvent')
     const result = await call(payload)

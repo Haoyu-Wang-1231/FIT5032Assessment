@@ -162,6 +162,7 @@ const saveRecipe = async () => {
       description: sanitizePlainText(recipe.value.description, 250),
       prepTime: sanitizePlainText(recipe.value.prepTime, 20),
       ingredients: recipe.value.ingredients,
+      isAdmin: userStore.isAdmin
     }
 
     for (const [key, value] of Object.entries(payload)) {
@@ -178,12 +179,12 @@ const saveRecipe = async () => {
     }
     
     console.log(payload)
-    // const call = httpsCallable(functions, 'saveRecipe')
-    // const result = await call(payload)
+    const call = httpsCallable(functions, 'saveRecipe')
+    const result = await call(payload)
     // console.log(result.data)
 
-    // visible.value = false
-    // emit('recipeSaved')
+    visible.value = false
+    emit('recipeSaved')
   } catch (e) {
     console.log('error:' + e)
   }

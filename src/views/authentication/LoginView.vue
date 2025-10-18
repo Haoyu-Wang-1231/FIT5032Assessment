@@ -5,7 +5,7 @@
       <div class="d-flex justify-content-center">
         <form class="col-xxl-6 col-lg-6 col-md-7 col-sm-8 col-10" @submit.prevent="submitLogin">
           <div class="mb-3">
-            <label for="email" class="form-label">user name</label>
+            <label for="email" class="form-label">email</label>
             <input type="text" class="form-control" v-model="formData.email" id="email" />
             <div v-if="errors.email" class="text-danger">{{ errors.email }}</div>
             <!-- <input type="text" class="form-control" id="username" @blur="() => validateName(true)"
@@ -23,12 +23,12 @@
               Register
             </button>
             <button type="submit" class="btn btn-primary me-3 mb-3">Login</button>
-            <button type="button" @click="justLogin" class="btn btn-primary me-3 mb-3">
+            <!-- <button type="button" @click="justLogin" class="btn btn-primary me-3 mb-3">
               just login
             </button>
             <button type="button" @click="justAdmin" class="btn btn-primary me-3 mb-3">
               just admin
-            </button>
+            </button> -->
           </div>
         </form>
       </div>
@@ -94,52 +94,7 @@ const submitLogin = async () => {
       formData.value.email,
       formData.value.password,
     )
-
-    // await getUser(userCredential.user.email)
-    // userStore.setUser(auth.currentUser.uid, auth.currentUser.email, notes.value[0].role)
-  } catch (e) {
-    errors.value = e.message
-    console.log('Login failed: ', e)
-  } finally {
-    console.log(auth.currentUser)
-    console.log(notes.value)
-    console.log('Login Finished')
-  }
-
-  if (errors.value == '') {
-    router.push({ name: 'Home' })
-  }
-}
-
-async function justLogin() {
-  try {
-    await signInWithEmailAndPassword(
-      auth,
-      '1658129453@qq.com',
-      'Harland123#',
-    )
     
-
-    // console.log("uid:"+userCredential.uid)
-
-  } catch (e) {
-    errors.value = e.message
-    console.log('Login failed: ', e)
-  } finally {
-    console.log(auth.currentUser)
-    console.log(notes.value)
-    console.log('Login Finished')
-  }
-
-  if (errors.value == '') {
-    // router.push({ name: 'Home' })
-  }
-}
-
-async function justAdmin() {
-  try {
-    const userCredential = await signInWithEmailAndPassword(auth, 'hwan0328@student.monash.edu', 'Harland123#')
-
     // await getUser(userCredential.user.email)
     // userStore.setUser(auth.currentUser.uid, auth.currentUser.email, notes.value[0].role)
   } catch (e) {
@@ -155,6 +110,49 @@ async function justAdmin() {
     router.push({ name: 'Home' })
   }
 }
+
+// async function justLogin() {
+//   try {
+//     await signInWithEmailAndPassword(
+//       auth,
+//       '1658129453@qq.com',
+//       'Harland123#',
+//     )
+//     // console.log("uid:"+userCredential.uid)
+
+//   } catch (e) {
+//     errors.value = e.message
+//     console.log('Login failed: ', e)
+//   } finally {
+//     console.log(auth.currentUser)
+//     console.log(notes.value)
+//     console.log('Login Finished')
+//   }
+
+//   if (errors.value == '') {
+//     router.push({ name: 'Home' })
+//   }
+// }
+
+// async function justAdmin() {
+//   try {
+//     const userCredential = await signInWithEmailAndPassword(auth, 'hwan0328@student.monash.edu', 'Harland123#')
+
+//     // await getUser(userCredential.user.email)
+//     // userStore.setUser(auth.currentUser.uid, auth.currentUser.email, notes.value[0].role)
+//   } catch (e) {
+//     errors.value = e.message
+//     console.log('Login failed: ', e)
+//   } finally {
+//     console.log(auth.currentUser)
+//     console.log(notes.value)
+//     console.log('Login Finished')
+//   }
+
+//   if (errors.value == '') {
+//     router.push({ name: 'Home' })
+//   }
+// }
 </script>
 
 

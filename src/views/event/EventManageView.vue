@@ -93,6 +93,8 @@ const events = ref([])
 const searchWord = ref('')
 const searchType = ref('')
 const router = useRouter()
+const useStore = useUserStore()
+
 const selections = ref([
   { name: 'title' },
   { name: 'organizer' },
@@ -125,7 +127,7 @@ async function loadEvents() {
 const removeEvent = async (eid) => {
   try {
     const call = httpsCallable(functions, 'removeEvent')
-    const payload = { id: eid}
+    const payload = { id: eid , isAdmin: useStore.isAdmin}
     const result = await call(payload)
     
     // const result = await call()

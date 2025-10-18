@@ -103,7 +103,12 @@ const saveRecipe = onCall(async (request) => {
     throw new HttpsError('unauthenticated', 'Please sign in first.')
   }
 
-  let isAdmin = request.auth.token?.role === 'admin' || request.auth.token?.admin === true
+  const isAdmin = request.data.isAdmin
+  if (!isAdmin) {
+    throw new HttpsError('permission-denied', 'Only admins can create events.')
+  }
+
+  // let isAdmin = request.auth.token?.role === 'admin' || request.auth.token?.admin === true
 
   if (!isAdmin) {
     const roleSnap = await db.collection('users').doc(request.auth.uid).get()
@@ -139,15 +144,6 @@ const saveRecipe = onCall(async (request) => {
   }
   console.log(payload)
   const docRef = await db.collection('recipes').add(payload)
-  // const docRef = await db.collection('recipes').add({
-  //   title,
-  //   author,
-  //   description,
-  //   prepTime,
-  //   favours: [],
-  //   createdAt: FieldValue.serverTimestamp(),
-  //   createdBy: request.auth.uid,
-  // })
   logger.info(`Recipe created ${docRef.id} by ${request.auth.uid}`)
 
   return { ok: true, id: docRef.id }
