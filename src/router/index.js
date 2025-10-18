@@ -16,6 +16,7 @@ import EventManageView from '@/views/event/EventManageView.vue'
 import getEventsAPI from '@/api/getEventsAPI.vue'
 import getRecipesAPI from '@/api/getRecipesAPI.vue'
 import { auth } from '@/firebase'
+import NotFound from '@/components/notFound.vue'
 
 const routes = [
   {
@@ -96,6 +97,9 @@ const routes = [
     component: getRecipesAPI,
     meta: {hidden: true}
 
+  },{
+    path: '*',
+    component: NotFound
   }
 
 ]
