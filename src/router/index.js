@@ -18,7 +18,6 @@ import getRecipesAPI from '@/api/getRecipesAPI.vue'
 import NotFoundComponent from '@/components/NotFoundComponent.vue'
 import { auth } from '@/firebase'
 
-
 const routes = [
   {
     path: '/',
@@ -64,7 +63,7 @@ const routes = [
     children: [
       { path: 'rid=:id', name: 'RecipeDetail', props: true, component: RecipeDetailView },
       { path: 'list', name: 'RecipeList', component: RecipeListView },
-      { path: 'manager',name: 'RecipeManager',component: RecipeManagerView}
+      { path: 'manager', name: 'RecipeManager', component: RecipeManagerView },
     ],
   },
   {
@@ -81,34 +80,32 @@ const routes = [
       { path: 'list', name: 'EventList', component: EventsView },
       { path: 'map', name: 'EventMap', component: MapView },
       { path: 'manager', name: 'EventManager', component: EventManageView },
-
     ],
   },
   // api
 
   {
-    path:'/getEventsList',
+    path: '/getEventsList',
     name: 'GetEventList',
     component: getEventsAPI,
-    meta: {hidden: true}
+    meta: { hidden: true },
   },
   {
     path: '/getRecipesList',
     name: 'GetRecipesList',
     component: getRecipesAPI,
-    meta: {hidden: true}
-
-  },{
-    path: '*',
-    component: NotFoundComponent
-  }
-
+    meta: { hidden: true },
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound',
+    component: NotFoundComponent,
+  },
 ]
 
 const router = createRouter({
   history: createWebHistory(),
   routes: routes,
 })
-
 
 export default router
