@@ -7,7 +7,7 @@ export default {
 
       try {
         const response = await fetch(firebaseURL, {
-          method: 'POST',
+          method: 'GET',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({}),
         })
@@ -30,7 +30,7 @@ export default {
 
       try {
         const response = await fetch(firebaseURL, {
-          method: 'POST',
+          method: 'GET',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({}),
         })
